@@ -13,6 +13,7 @@
         <module>jlogfilter-store</module>
         <module>jlogfilter-testui</module>
         <module>jlogfilter-util</module>
+        <module>jlogfilter-log4j</module>
     </modules>
 
     <dependencyManagement>

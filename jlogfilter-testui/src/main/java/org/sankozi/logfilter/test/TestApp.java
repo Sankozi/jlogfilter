@@ -25,7 +25,7 @@ public class TestApp extends Application{
     private TextField messageField;
     private Button submitEventButton;
 
-    public static final void main(String[] args){
+    public static void main(String[] args){
         launch(args);
     }
 
