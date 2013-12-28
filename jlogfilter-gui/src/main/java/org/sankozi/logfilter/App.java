@@ -21,7 +21,6 @@ import java.util.List;
  */
 public class App extends com.cathive.fx.guice.GuiceApplication {
     public static final void main(String[] args){
-        System.out.println("Test");
         launch(args);
     }
 
