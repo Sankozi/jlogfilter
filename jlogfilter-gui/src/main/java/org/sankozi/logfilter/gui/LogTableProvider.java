@@ -1,10 +1,13 @@
 package org.sankozi.logfilter.gui;
 
+import com.google.inject.Inject;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.sankozi.logfilter.Level;
+import org.sankozi.logfilter.LogConsumer;
 import org.sankozi.logfilter.LogEntry;
+import org.sankozi.logfilter.LogStore;
 
 import javax.inject.Provider;
 
@@ -12,6 +15,8 @@ import javax.inject.Provider;
  *
  */
 public class LogTableProvider implements Provider<TableView<LogEntry>> {
+    @Inject
+    LogStore logStore;
 
     private final TableColumn<LogEntry, String> messageColumn = new TableColumn<>("Message");   {
         messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
@@ -19,13 +24,23 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     private final TableColumn<LogEntry, String> categoryColumn = new TableColumn<LogEntry, String>("Category"); {
         categoryColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("category"));
     }
+    private final TableColumn<LogEntry, String> levelColumn = new TableColumn<LogEntry, String>("Level"); {
+        levelColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("level"));
+    }
 
     @Override
     public TableView<LogEntry> get() {
-        TableView<LogEntry> ret = new TableView<LogEntry>();
-        ret.getColumns().addAll(messageColumn, categoryColumn);
-        ret.getItems().add(new LogEntry(Level.INFO, "test message",  "test category"));
-        ret.getItems().add(new LogEntry(Level.INFO, "test message 2","test category 2"));
+        final TableView<LogEntry> ret = new TableView<LogEntry>();
+        ret.getColumns().addAll(messageColumn, categoryColumn, levelColumn);
+        logStore.addNewEntriesListener(new Runnable(){
+            @Override
+            public void run() {
+                ret.getItems().clear();
+                ret.getItems().addAll(logStore.getTop(50));
+            }
+        });
+//        ret.getItems().add(new LogEntry(Level.INFO, "test.category", "test message"));
+//        ret.getItems().add(new LogEntry(Level.INFO, "test.category", "test message 2"));
         return ret;
     }
 }

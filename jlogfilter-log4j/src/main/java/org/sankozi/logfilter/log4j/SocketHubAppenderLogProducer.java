@@ -1,8 +1,10 @@
 package org.sankozi.logfilter.log4j;
 
+import org.apache.log4j.spi.LoggingEvent;
 import org.sankozi.logfilter.Level;
 import org.sankozi.logfilter.LogConsumer;
 import org.sankozi.logfilter.LogEntry;
+import org.sankozi.logfilter.LogProducer;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -15,7 +17,7 @@ import static com.google.common.base.Preconditions.*;
 /**
  * Object that produces LogEntry objects for LogConsumer.
  */
-public final class SocketHubAppenderLogProducer implements AutoCloseable{
+public final class SocketHubAppenderLogProducer implements LogProducer {
     private final String host;
     private final int port;
 
@@ -32,7 +34,7 @@ public final class SocketHubAppenderLogProducer implements AutoCloseable{
     }
 
     public void start(LogConsumer consumer){
-        checkState(consumer == null, "this producer has already started");
+        checkState(consumer != null, "this producer has already started");
         this.consumer = checkNotNull(consumer, "consumer cannot be null");
         this.producerThread = new Thread(new Runnable() {
             @Override
@@ -49,17 +51,20 @@ public final class SocketHubAppenderLogProducer implements AutoCloseable{
         try {
             while(true){
                 try (Socket socket = new Socket(host, port);
-                     ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()))){
-                    ois.readObject();
+                    ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()))){
+                    while(true){
+                        LoggingEvent le = (LoggingEvent) ois.readObject();
+                        consumer.add(new LogEntry(Level.valueOf(le.getLevel().toString()), le.getLoggerName(), le.getMessage().toString()));
+                    }
                 } catch (IOException e) {
-                    consumer.add(new LogEntry(Level.INFO, "logfilter.log4j", name + " has encountered io error: " + e.getMessage()));
+                    consumer.add(new LogEntry(Level.INFO, "jlogfilter.log4j", name + " has encountered io error: " + e.getMessage()));
                 }
                 Thread.sleep(5000);
             }
         } catch (InterruptedException ex){
-            consumer.add(new LogEntry(Level.INFO, "logfilter.log4j", name + " has been closed"));
+            consumer.add(new LogEntry(Level.INFO, "jlogfilter.log4j", name + " has been closed"));
         } catch (ClassNotFoundException e) {
-            consumer.add(new LogEntry(Level.ERROR, "logfilter.log4j", name + " has encountered error: " + e.getMessage()));
+            consumer.add(new LogEntry(Level.ERROR, "jlogfilter.log4j", name + " has encountered error: " + e.getMessage()));
         }
     }
 
@@ -70,7 +75,7 @@ public final class SocketHubAppenderLogProducer implements AutoCloseable{
         try {
             producerThread.join(1000);
             if(producerThread.isAlive()){
-                consumer.add(new LogEntry(Level.INFO, "logfilter.log4j", name + " has not ended in time"));
+                consumer.add(new LogEntry(Level.INFO, "jlogfilter.log4j", name + " has not ended in time"));
             }
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);

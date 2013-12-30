@@ -29,5 +29,10 @@
             <artifactId>jlogfilter-store</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.sankozi</groupId>
+            <artifactId>jlogfilter-log4j</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
