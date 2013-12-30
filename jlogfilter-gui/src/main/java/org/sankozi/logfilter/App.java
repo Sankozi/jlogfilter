@@ -31,7 +31,7 @@ public class App extends com.cathive.fx.guice.GuiceApplication {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setScene(new Scene(getInjector().getInstance(Key.get(Pane.class, Names.named("main"))), 300, 250));
+        primaryStage.setScene(new Scene(getInjector().getInstance(Key.get(Pane.class, Names.named("main"))), 700, 550));
         primaryStage.show();
         LogConsumer lc = getInjector().getInstance(LogConsumer.class);
         logProducers.add(new SocketHubAppenderLogProducer("localhost",7777));

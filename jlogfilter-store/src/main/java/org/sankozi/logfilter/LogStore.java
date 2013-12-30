@@ -10,7 +10,9 @@ public interface LogStore {
     void add(LogEntry newEntry);
     void addAll(Collection<LogEntry> enties);
 
-    void addNewEntriesListener(Runnable listener);
+    void clear();
+
+    void addChangeListener(Runnable listener);
 
     /**
      * Return last n events

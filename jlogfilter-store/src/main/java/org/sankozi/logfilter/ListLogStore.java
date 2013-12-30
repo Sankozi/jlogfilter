@@ -12,38 +12,44 @@ import java.util.List;
  */
 @Singleton
 public class ListLogStore implements LogStore, LogConsumer {
-    private final List<Runnable> newEntryListeners = Lists.newArrayListWithCapacity(3);
+    private final List<Runnable> listeners = Lists.newArrayListWithCapacity(3);
     private final List<LogEntry> entries = Lists.newArrayListWithCapacity(100);
 
     @Override
-    public void add(LogEntry newEntry) {
+    public synchronized void add(LogEntry newEntry) {
         entries.add(newEntry);
         fireNewEntriesListeners();
     }
 
     @Override
-    public void addAll(Collection<LogEntry> entries) {
+    public synchronized void addAll(Collection<LogEntry> entries) {
         this.entries.addAll(entries);
         fireNewEntriesListeners();
     }
 
     @Override
-    public void addNewEntriesListener(Runnable listener) {
-        newEntryListeners.add(listener);
+    public synchronized void addChangeListener(Runnable listener) {
+        listeners.add(listener);
     }
 
-    private void fireNewEntriesListeners(){
-        for(Runnable runnable: newEntryListeners){
+    private synchronized void fireNewEntriesListeners(){
+        for(Runnable runnable: listeners){
             runnable.run();
         }
     }
 
     @Override
-    public List<LogEntry> getTop(int n) {
+    public synchronized void clear() {
+        entries.clear();
+        fireNewEntriesListeners();
+    }
+
+    @Override
+    public synchronized List<LogEntry> getTop(int n) {
         if(entries.size() < n) {
-            return entries.subList(0, entries.size());
+            return ImmutableList.copyOf(entries.subList(0, entries.size()));
         } else {
-            return entries.subList(entries.size() - n, entries.size());
+            return ImmutableList.copyOf(entries.subList(entries.size() - n, entries.size()));
         }
     }
 }

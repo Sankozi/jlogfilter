@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.sankozi.logfilter.Level;
-import org.sankozi.logfilter.LogConsumer;
 import org.sankozi.logfilter.LogEntry;
 import org.sankozi.logfilter.LogStore;
 
@@ -19,12 +17,16 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     LogStore logStore;
 
     private final TableColumn<LogEntry, String> messageColumn = new TableColumn<>("Message");   {
+        messageColumn.setMinWidth(200);
         messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
     }
     private final TableColumn<LogEntry, String> categoryColumn = new TableColumn<LogEntry, String>("Category"); {
+        categoryColumn.setMinWidth(200);
         categoryColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("category"));
     }
     private final TableColumn<LogEntry, String> levelColumn = new TableColumn<LogEntry, String>("Level"); {
+        levelColumn.setMinWidth(100);
+        levelColumn.setMaxWidth(100);
         levelColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("level"));
     }
 
@@ -32,7 +34,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     public TableView<LogEntry> get() {
         final TableView<LogEntry> ret = new TableView<LogEntry>();
         ret.getColumns().addAll(messageColumn, categoryColumn, levelColumn);
-        logStore.addNewEntriesListener(new Runnable(){
+        logStore.addChangeListener(new Runnable() {
             @Override
             public void run() {
                 ret.getItems().clear();
