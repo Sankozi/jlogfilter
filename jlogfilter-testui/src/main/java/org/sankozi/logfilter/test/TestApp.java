@@ -12,7 +12,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.net.SocketHubAppender;
-import org.apache.log4j.spi.LoggerFactory;
 import org.sankozi.logfilter.gui.SaneTilePane;
 
 
@@ -24,6 +23,7 @@ public class TestApp extends Application{
     private ComboBox<String> levelChoice;
     private TextField messageField;
     private Button submitEventButton;
+    private CheckBox throwableCheckBox;
 
     public static void main(String[] args){
         launch(args);
@@ -43,12 +43,20 @@ public class TestApp extends Application{
 
         messageField = new TextField("test message");
 
+        throwableCheckBox = new CheckBox();
+
         submitEventButton = new Button("Submit event");
         submitEventButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 Level level = Level.toLevel(levelChoice.getValue());
-                Logger.getLogger(categoryChoice.getValue()).log(level, messageField.getText());
+
+                Logger logger = Logger.getLogger(categoryChoice.getValue());
+                if(throwableCheckBox.isSelected()){
+                    logger.log(level, messageField.getText(), new Throwable());
+                } else {
+                    logger.log(level, messageField.getText());
+                }
             }
         });
 
@@ -60,6 +68,7 @@ public class TestApp extends Application{
                 new Label("Category"), categoryChoice,
                 new Label("Level"), levelChoice,
                 new Label("Message"), messageField,
+                new Label("With throwable"), throwableCheckBox,
                 submitEventButton);
 
         Scene scene = new Scene(mainPane, 300, 300);

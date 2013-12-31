@@ -1,5 +1,6 @@
 package org.sankozi.logfilter.log4j;
 
+import com.google.common.base.Joiner;
 import org.apache.log4j.spi.LoggingEvent;
 import org.sankozi.logfilter.Level;
 import org.sankozi.logfilter.LogConsumer;
@@ -18,6 +19,8 @@ import static com.google.common.base.Preconditions.*;
  * Object that produces LogEntry objects for LogConsumer.
  */
 public final class SocketHubAppenderLogProducer implements LogProducer {
+    private final static Joiner STACKTRACE_JOINER = Joiner.on(" \n").skipNulls();
+
     private final String host;
     private final int port;
 
@@ -54,7 +57,11 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                     ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()))){
                     while(true){
                         LoggingEvent le = (LoggingEvent) ois.readObject();
-                        consumer.add(new LogEntry(Level.valueOf(le.getLevel().toString()), le.getLoggerName(), le.getMessage().toString()));
+                        Level level = Level.valueOf(le.getLevel().toString());
+                        LogEntry newEntry = le.getThrowableStrRep() != null
+                            ? new LogEntry(level, le.getLoggerName(), le.getMessage().toString(), STACKTRACE_JOINER.join(le.getThrowableStrRep()))
+                            : new LogEntry(level, le.getLoggerName(), le.getMessage().toString());
+                        consumer.add(newEntry);
                     }
                 } catch (IOException e) {
                     consumer.add(new LogEntry(Level.INFO, "jlogfilter.log4j", name + " has encountered io error: " + e.getMessage()));
