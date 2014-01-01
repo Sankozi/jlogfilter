@@ -4,7 +4,9 @@ import com.google.inject.Inject;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
@@ -35,7 +37,12 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     private final TableColumn<LogEntry, String> levelColumn = new TableColumn<LogEntry, String>("Level"); {
         levelColumn.setMinWidth(100);
         levelColumn.setMaxWidth(100);
-        levelColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("level"));
+        levelColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
+                return new SimpleStringProperty(cell.getValue().getLevel().name());
+            }
+        });
     }
 
     private final TableColumn<LogEntry, String> stacktraceColumn = new TableColumn<LogEntry, String>("Stacktrace"); {
@@ -53,10 +60,26 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public TableView<LogEntry> get() {
         final TableView<LogEntry> ret = new TableView<LogEntry>();
         ret.getColumns().addAll(levelColumn, messageColumn, categoryColumn, stacktraceColumn);
+        final Callback<TableView<LogEntry>, TableRow<LogEntry>> rowFactory = ret.getRowFactory();
+        ret.setRowFactory(new Callback<TableView<LogEntry>, TableRow<LogEntry>>() {
+            @Override
+            public TableRow<LogEntry> call(TableView<LogEntry> table) {
+                return new TableRow<LogEntry>(){
+                    @Override
+                    protected void updateItem(LogEntry entry, boolean empty) {
+                        super.updateItem(entry, empty);
+                        if(!empty) {
+                            this.getStyleClass().add(entry.getLevel().name());
+                        }
+                    }
+                };
+            }
+        });
         ret.setMaxHeight(ret.getMinHeight());
         logStore.addChangeListener(new Runnable() {
             @Override

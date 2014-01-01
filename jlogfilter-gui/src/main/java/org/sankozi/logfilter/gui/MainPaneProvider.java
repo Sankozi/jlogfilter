@@ -25,6 +25,9 @@ public class MainPaneProvider implements Provider<Pane> {
 
     @Override
     public Pane get() {
+        BorderPane ret = new BorderPane();
+        ret.getStylesheets().add("/style.css");
+
         HBox buttonPane = new HBox();
         Button clearButton = new Button("Clear");
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -35,9 +38,11 @@ public class MainPaneProvider implements Provider<Pane> {
         });
         buttonPane.getChildren().addAll(clearButton);
 
-        BorderPane ret = new BorderPane();
+
         ret.setCenter(logEntryTable);
         ret.setTop(buttonPane);
+
+
         return ret;
     }
 }

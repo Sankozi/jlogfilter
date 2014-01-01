@@ -1,0 +1,31 @@
+
+.TRACE {
+    -fx-text-inner-color:gray;
+}
+
+.INFO {
+     -fx-background-color:palegreen;
+     -fx-control-inner-background: palegreen;
+}
+
+.WARN {
+    -fx-background-color:sandybrown;
+    -fx-control-inner-background: sandybrown;
+}
+
+.ERROR {
+    -fx-background-color:lightcoral;
+    -fx-control-inner-background: lightcoral;
+}
+
+.table-row-cell:odd {
+    -fx-background-color:derive(-fx-control-inner-background, -10%);
+}
+
+.table-row-cell:focused {
+    -fx-background-color:derive(-fx-control-inner-background, -40%);
+}
+
+
+
+

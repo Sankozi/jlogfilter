@@ -79,12 +79,12 @@ public class TestApp extends Application{
     private void configureRootLogger() {
         Logger rootLogger = Logger.getRootLogger();
         rootLogger.setLevel(Level.TRACE);
-        ConsoleAppender consoleAppender = new ConsoleAppender();
-        consoleAppender.setTarget(ConsoleAppender.SYSTEM_OUT);
-        consoleAppender.setName("out");
-        consoleAppender.setLayout(new PatternLayout(PatternLayout.DEFAULT_CONVERSION_PATTERN));
-        consoleAppender.activateOptions();
-        rootLogger.addAppender(consoleAppender);
+//        ConsoleAppender consoleAppender = new ConsoleAppender();
+//        consoleAppender.setTarget(ConsoleAppender.SYSTEM_OUT);
+//        consoleAppender.setName("out");
+//        consoleAppender.setLayout(new PatternLayout(PatternLayout.DEFAULT_CONVERSION_PATTERN));
+//        consoleAppender.activateOptions();
+//        rootLogger.addAppender(consoleAppender);
         rootLogger.addAppender(new SocketHubAppender(7777));
     }
 }
