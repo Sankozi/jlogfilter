@@ -16,6 +16,5 @@ public class GuiModule extends AbstractModule{
     protected void configure() {
         bind(Pane.class).annotatedWith(Names.named("main")).toProvider(MainPaneProvider.class);
         bind(new TypeLiteral<TableView<LogEntry>>(){}).toProvider(LogTableProvider.class);
-
     }
 }

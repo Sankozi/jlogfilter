@@ -1,6 +1,7 @@
 package org.sankozi.logfilter.gui;
 
 import com.google.inject.Inject;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -30,18 +31,21 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     LogStore logStore;
 
     private final TableColumn<LogEntry, String> messageColumn = new TableColumn<>("Message"); {
+        messageColumn.setSortable(false);
         messageColumn.setMinWidth(200);
         messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
     }
 
     private final TableColumn<LogEntry, String> categoryColumn = new TableColumn<LogEntry, String>("Category"); {
+        categoryColumn.setSortable(false);
         categoryColumn.setMinWidth(200);
         categoryColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("category"));
     }
 
     private final TableColumn<LogEntry, String> levelColumn = new TableColumn<LogEntry, String>("Level"); {
-        levelColumn.setMinWidth(100);
-        levelColumn.setMaxWidth(100);
+        levelColumn.setSortable(false);
+        levelColumn.setMinWidth(50);
+        levelColumn.setMaxWidth(50);
         levelColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
@@ -51,6 +55,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     }
 
     private final TableColumn<LogEntry, String> stacktraceColumn = new TableColumn<LogEntry, String>("Stacktrace"); {
+        stacktraceColumn.setSortable(false);
         stacktraceColumn.setMinWidth(100);
         stacktraceColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
             @Override
@@ -89,27 +94,32 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         logStore.addChangeListener(new Runnable() {
             @Override
             public void run() {
-                List<LogEntry> entries = logStore.getTop(50);
-                ListIterator<LogEntry> iNew = entries.listIterator();
-                @Nullable Integer deleteFrom = null;
-                ObservableList<LogEntry> currentItems = ret.getItems();
-                for(ListIterator<LogEntry> li= currentItems.listIterator(); li.hasNext();){
-                    if(iNew.hasNext()){
-                        LogEntry current = li.next();
-                        LogEntry newEntry = iNew.next();
-                        if(current.getId() != newEntry.getId()){
-                            li.set(newEntry);
+                final List<LogEntry> entries = logStore.getTop(50);
+                final ListIterator<LogEntry> iNew = entries.listIterator();
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        @Nullable Integer deleteFrom = null;
+                        ObservableList<LogEntry> currentItems = ret.getItems();
+                        for(ListIterator<LogEntry> li= currentItems.listIterator(); li.hasNext();){
+                            if(iNew.hasNext()){
+                                LogEntry current = li.next();
+                                LogEntry newEntry = iNew.next();
+                                if(current.getId() != newEntry.getId()){
+                                    li.set(newEntry);
+                                }
+                            } else {
+                                deleteFrom = li.nextIndex();
+                                break;
+                            }
                         }
-                    } else {
-                        deleteFrom = li.nextIndex();
-                        break;
+                        if(iNew.hasNext()){
+                            currentItems.addAll(entries.subList(iNew.nextIndex(), entries.size()));
+                        } else if(deleteFrom != null){
+                            currentItems.remove(deleteFrom, currentItems.size());
+                        }
                     }
-                }
-                if(iNew.hasNext()){
-                    currentItems.addAll(entries.subList(iNew.nextIndex(), entries.size()));
-                } else if(deleteFrom != null){
-                    currentItems.remove(deleteFrom, currentItems.size());
-                }
+                });
             }
         });
         return ret;
