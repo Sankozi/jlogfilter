@@ -26,6 +26,12 @@
     -fx-background-color:derive(-fx-control-inner-background, -40%);
 }
 
+.fontAwesome {
+    -fx-font-family: FontAwesome;
+    -fx-font-size: 14pt;
+    -fx-padding: 5px;
+}
+
 
 
 

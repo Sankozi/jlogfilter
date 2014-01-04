@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.sankozi.logfilter.gui.GuiModule;
 import org.sankozi.logfilter.log4j.SocketHubAppenderLogProducer;
@@ -31,6 +32,7 @@ public class App extends com.cathive.fx.guice.GuiceApplication {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Font.loadFont(App.class.getResource("/fontawesome-webfont.ttf").toExternalForm(), 12);
         primaryStage.setScene(new Scene(getInjector().getInstance(Key.get(Pane.class, Names.named("main"))), 700, 550));
         primaryStage.show();
         LogConsumer lc = getInjector().getInstance(LogConsumer.class);

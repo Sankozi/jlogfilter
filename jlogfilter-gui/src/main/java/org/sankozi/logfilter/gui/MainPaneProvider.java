@@ -29,7 +29,8 @@ public class MainPaneProvider implements Provider<Pane> {
         ret.getStylesheets().add("/style.css");
 
         HBox buttonPane = new HBox();
-        Button clearButton = new Button("Clear");
+        Button clearButton = new Button("\uf014");
+        clearButton.getStyleClass().add("fontAwesome");
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
