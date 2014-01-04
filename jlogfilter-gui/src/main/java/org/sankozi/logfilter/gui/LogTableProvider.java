@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -13,7 +14,11 @@ import javafx.util.Callback;
 import org.sankozi.logfilter.LogEntry;
 import org.sankozi.logfilter.LogStore;
 
+import javax.annotation.Nullable;
 import javax.inject.Provider;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  *
@@ -84,8 +89,27 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         logStore.addChangeListener(new Runnable() {
             @Override
             public void run() {
-                ret.getItems().clear();
-                ret.getItems().addAll(logStore.getTop(50));
+                List<LogEntry> entries = logStore.getTop(50);
+                ListIterator<LogEntry> iNew = entries.listIterator();
+                @Nullable Integer deleteFrom = null;
+                ObservableList<LogEntry> currentItems = ret.getItems();
+                for(ListIterator<LogEntry> li= currentItems.listIterator(); li.hasNext();){
+                    if(iNew.hasNext()){
+                        LogEntry current = li.next();
+                        LogEntry newEntry = iNew.next();
+                        if(current.getId() != newEntry.getId()){
+                            li.set(newEntry);
+                        }
+                    } else {
+                        deleteFrom = li.nextIndex();
+                        break;
+                    }
+                }
+                if(iNew.hasNext()){
+                    currentItems.addAll(entries.subList(iNew.nextIndex(), entries.size()));
+                } else if(deleteFrom != null){
+                    currentItems.remove(deleteFrom, currentItems.size());
+                }
             }
         });
         return ret;
