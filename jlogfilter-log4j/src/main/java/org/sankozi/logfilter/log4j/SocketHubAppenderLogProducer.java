@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -59,8 +60,8 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                         LoggingEvent le = (LoggingEvent) ois.readObject();
                         Level level = Level.valueOf(le.getLevel().toString());
                         LogEntry newEntry = le.getThrowableStrRep() != null
-                            ? new LogEntry(level, le.getLoggerName(), le.getMessage().toString(), STACKTRACE_JOINER.join(le.getThrowableStrRep()))
-                            : new LogEntry(level, le.getLoggerName(), le.getMessage().toString());
+                            ? new LogEntry(level, le.getLoggerName(), Objects.toString(le.getMessage()), STACKTRACE_JOINER.join(le.getThrowableStrRep()))
+                            : new LogEntry(level, le.getLoggerName(), Objects.toString(le.getMessage()));
                         consumer.add(newEntry);
                     }
                 } catch (IOException e) {
@@ -70,7 +71,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
             }
         } catch (InterruptedException ex){
             consumer.add(new LogEntry(Level.INFO, "jlogfilter.log4j", name + " has been closed"));
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             consumer.add(new LogEntry(Level.ERROR, "jlogfilter.log4j", name + " has encountered error: " + e.getMessage()));
         }
     }
