@@ -1,5 +1,9 @@
 package org.sankozi.logfilter;
 
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Set;
+
 /**
  *
  */
@@ -8,5 +12,14 @@ public enum Level {
     DEBUG,
     INFO,
     WARN,
-    ERROR
+    ERROR;
+
+    public static final Set<String> LEVEL_NAMES;
+    static {
+        ImmutableSet.Builder<String> set = ImmutableSet.builder();
+        for(Level level: Level.values()){
+            set.add(level.name());
+        }
+        LEVEL_NAMES = set.build();
+    }
 }
