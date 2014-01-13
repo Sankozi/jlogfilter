@@ -34,7 +34,22 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     private final TableColumn<LogEntry, String> messageColumn = new TableColumn<>("Message"); {
         messageColumn.setSortable(false);
         messageColumn.setMinWidth(200);
-        messageColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("message"));
+        messageColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
+                String message = cell.getValue().getMessage();
+                if(message.isEmpty()){
+                    return EMPTY_STRING_PROPERTY;
+                } else {
+                    int newline = message.indexOf('\n');
+                    if(newline != -1) {
+                        return new SimpleStringProperty(message.substring(0, newline) + "[...]");
+                    } else {
+                        return new SimpleStringProperty(message);
+                    }
+                }
+            }
+        });
     }
 
     private final TableColumn<LogEntry, String> categoryColumn = new TableColumn<LogEntry, String>("Category"); {
@@ -65,7 +80,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
                 if(stacktrace.isEmpty()){
                     return EMPTY_STRING_PROPERTY;
                 } else {
-                    return new SimpleStringProperty(stacktrace.substring(0, stacktrace.indexOf('\n')));
+                    return new SimpleStringProperty(stacktrace.substring(0, stacktrace.indexOf('\n')) + "[...]");
                 }
             }
         });
@@ -96,7 +111,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         logStore.addChangeListener(new Runnable() {
             @Override
             public void run() {
-                final List<LogEntry> entries = logStore.getTop(50);
+                final List<LogEntry> entries = logStore.getTop(500);
                 final ListIterator<LogEntry> iNew = entries.listIterator();
                 Platform.runLater(new Runnable() {
                     @Override
