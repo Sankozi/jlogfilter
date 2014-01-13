@@ -34,6 +34,7 @@ public class App extends com.cathive.fx.guice.GuiceApplication {
     public void start(Stage primaryStage) throws Exception {
         Font.loadFont(App.class.getResource("/fontawesome-webfont.ttf").toExternalForm(), 12);
         primaryStage.setScene(new Scene(getInjector().getInstance(Key.get(Pane.class, Names.named("main"))), 700, 550));
+        primaryStage.setTitle("jlogfilter");
         primaryStage.show();
         LogConsumer lc = getInjector().getInstance(LogConsumer.class);
         logProducers.add(new SocketHubAppenderLogProducer("localhost",7777));
