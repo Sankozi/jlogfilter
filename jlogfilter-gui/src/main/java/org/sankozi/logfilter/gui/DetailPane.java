@@ -31,7 +31,7 @@ public class DetailPane extends BorderPane {
             contentBuilder.append("<!DOCTYPE html>\n" +
                                   "<html lang=\"en\">\n" +
                                   "<head></head><body>")
-                    .append("<pre>")
+                    .append("<pre width='100%' style='white-space:pre-wrap;'>")
                     .append(logEntry.getMessage())
                     .append('\n')
                     .append(logEntry.getStacktrace())
