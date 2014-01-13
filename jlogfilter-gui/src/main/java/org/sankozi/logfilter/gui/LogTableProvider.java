@@ -90,6 +90,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     @Override
     public TableView<LogEntry> get() {
         final TableView<LogEntry> ret = new TableView<LogEntry>();
+        ret.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         ret.getColumns().addAll(levelColumn, messageColumn, categoryColumn, stacktraceColumn);
         final Callback<TableView<LogEntry>, TableRow<LogEntry>> rowFactory = ret.getRowFactory();
         ret.setRowFactory(new Callback<TableView<LogEntry>, TableRow<LogEntry>>() {
