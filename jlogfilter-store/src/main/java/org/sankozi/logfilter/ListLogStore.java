@@ -6,6 +6,9 @@ import com.google.inject.Singleton;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Log that stores new entries in a list
@@ -13,12 +16,57 @@ import java.util.List;
 @Singleton
 public class ListLogStore implements LogStore, LogConsumer {
     private final List<Runnable> listeners = Lists.newArrayListWithCapacity(3);
-    private final List<LogEntry> entries = Lists.newArrayListWithCapacity(100);
+    private final List<LogEntry> entries = Lists.newArrayListWithCapacity(1024);
+
+    private final BlockingQueue<LogEntry> entryQueue = new ArrayBlockingQueue<>(1024);
+
+    private volatile Thread logStoreThread = null;
+
 
     @Override
-    public synchronized void add(LogEntry newEntry) {
-        entries.add(newEntry);
-        fireNewEntriesListeners();
+    public void add(LogEntry newEntry) {
+        if(logStoreThread == null){
+            synchronized(this){
+                if(logStoreThread == null){
+                    logStoreThread = initLogStoreThread();
+                }
+            }
+        }
+        entryQueue.add(newEntry);
+    }
+
+    private Thread initLogStoreThread(){
+        Thread ret = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                logStoreThread();
+            }
+        });
+        ret.setName("logStoreThread");
+        ret.setDaemon(true);
+        ret.start();
+        return ret;
+    }
+
+    private void logStoreThread() {
+        List<LogEntry> drain = Lists.newArrayListWithCapacity(32);
+        try {
+            while(true){
+                LogEntry entry = entryQueue.take();
+                drain.add(entry);
+                Thread.sleep(100);
+                entryQueue.drainTo(drain);
+                System.out.println("adding " + drain.size() + " log entries");
+                synchronized (this) {
+                    entries.addAll(drain);
+                    fireNewEntriesListeners();
+                }
+                drain.clear();
+            }
+        } catch (Exception ex){
+            System.err.println(ex.getMessage());
+            ex.printStackTrace(System.err);
+        }
     }
 
     @Override
