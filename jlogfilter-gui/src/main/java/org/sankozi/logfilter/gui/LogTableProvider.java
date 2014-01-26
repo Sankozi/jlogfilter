@@ -117,14 +117,21 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
+                        LogEntry selectedItem = ret.getSelectionModel().getSelectedItem();
+                        int currentId = selectedItem == null ? -1 : selectedItem.getId();
+
+                        Integer newSelectedIndex = null;
                         @Nullable Integer deleteFrom = null;
                         ObservableList<LogEntry> currentItems = ret.getItems();
-                        for(ListIterator<LogEntry> li= currentItems.listIterator(); li.hasNext();){
+                        for(ListIterator<LogEntry> li = currentItems.listIterator(); li.hasNext();){
                             if(iNew.hasNext()){
                                 LogEntry current = li.next();
                                 LogEntry newEntry = iNew.next();
                                 if(current.getId() != newEntry.getId()){
                                     li.set(newEntry);
+                                    if(newEntry.getId() == currentId){
+                                        newSelectedIndex = li.previousIndex();
+                                    }
                                 }
                             } else {
                                 deleteFrom = li.nextIndex();
@@ -135,6 +142,9 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
                             currentItems.addAll(entries.subList(iNew.nextIndex(), entries.size()));
                         } else if(deleteFrom != null){
                             currentItems.remove(deleteFrom, currentItems.size());
+                        }
+                        if(newSelectedIndex != null){
+                            ret.getSelectionModel().select(newSelectedIndex);
                         }
                     }
                 });
