@@ -8,12 +8,15 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import org.sankozi.logfilter.LogEntry;
 import org.sankozi.logfilter.LogStore;
+
+import static org.sankozi.logfilter.gui.FontAwesomeIcons.*;
 
 /**
  *
@@ -50,7 +53,7 @@ public class MainPaneProvider implements Provider<Pane> {
         ret.getStylesheets().add("/style.css");
 
         HBox buttonPane = new HBox();
-        Button clearButton = new Button("\uf014"); //trash icon
+        Button clearButton = new Button(Character.toString(TRASH_O)); //trash icon
         clearButton.getStyleClass().add("fontAwesome");
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -60,52 +63,14 @@ public class MainPaneProvider implements Provider<Pane> {
         });
         clearButton.setTooltip(new Tooltip("Delete all stored log entries"));
 
-        Label detailLabel = new Label("\uf03a");  //list
+        Label detailLabel = new Label(Character.toString(LIST));  //list
         detailLabel.getStyleClass().add("fontAwesome");
 
         ToggleGroup detailGroup = new ToggleGroup();
-        final ToggleButton noDetailButton = new ToggleButton("\uf111");
-        noDetailButton.getStyleClass().add("fontAwesome");
-        noDetailButton.setToggleGroup(detailGroup);
-        noDetailButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                splitPane.getItems().setAll(logEntryTable);
-            }
-        });
-
-        ToggleButton leftDetailButton = new ToggleButton("\uf0a8");
-        leftDetailButton.getStyleClass().add("fontAwesome");
-        leftDetailButton.setToggleGroup(detailGroup);
-        leftDetailButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                splitPane.setOrientation(Orientation.HORIZONTAL);
-                splitPane.getItems().setAll(logEntryDetail, logEntryTable);
-            }
-        });
-
-        ToggleButton downDetailButton = new ToggleButton("\uf0ab");
-        downDetailButton.getStyleClass().add("fontAwesome");
-        downDetailButton.setToggleGroup(detailGroup);
-        downDetailButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                splitPane.setOrientation(Orientation.VERTICAL);
-                splitPane.getItems().setAll(logEntryTable, logEntryDetail);
-            }
-        });;
-
-        ToggleButton rightDetailButton = new ToggleButton("\uf0a9");
-        rightDetailButton.getStyleClass().add("fontAwesome");
-        rightDetailButton.setToggleGroup(detailGroup);
-        rightDetailButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                splitPane.setOrientation(Orientation.HORIZONTAL);
-                splitPane.getItems().setAll(logEntryTable, logEntryDetail);
-            }
-        });;
+        ToggleButton noDetailButton = getToggleButton(CIRCLE, splitPane, detailGroup, Orientation.HORIZONTAL, logEntryTable);
+        ToggleButton leftDetailButton = getToggleButton(ARROW_CIRCLE_LEFT, splitPane, detailGroup, Orientation.HORIZONTAL, logEntryDetail, logEntryTable);
+        ToggleButton downDetailButton = getToggleButton(ARROW_CIRCLE_DOWN, splitPane, detailGroup, Orientation.VERTICAL, logEntryTable, logEntryDetail);
+        ToggleButton rightDetailButton = getToggleButton(ARROW_CIRCLE_RIGHT, splitPane, detailGroup, Orientation.HORIZONTAL, logEntryTable, logEntryDetail);
         rightDetailButton.setSelected(true);
 
         buttonPane.getChildren().addAll(clearButton, detailLabel, noDetailButton, leftDetailButton, downDetailButton, rightDetailButton);
@@ -114,5 +79,20 @@ public class MainPaneProvider implements Provider<Pane> {
         ret.setTop(buttonPane);
 
         return ret;
+    }
+
+    private ToggleButton getToggleButton(char icon, final SplitPane splitPane, ToggleGroup detailGroup,
+                                         final Orientation orientation, final Node... components) {
+        ToggleButton downDetailButton = new ToggleButton(Character.toString(icon));
+        downDetailButton.getStyleClass().add("fontAwesome");
+        downDetailButton.setToggleGroup(detailGroup);
+        downDetailButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                splitPane.setOrientation(orientation);
+                splitPane.getItems().setAll(components);
+            }
+        });
+        return downDetailButton;
     }
 }
