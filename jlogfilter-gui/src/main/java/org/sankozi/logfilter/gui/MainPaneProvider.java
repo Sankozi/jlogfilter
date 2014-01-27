@@ -10,9 +10,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import org.sankozi.logfilter.LogEntry;
 import org.sankozi.logfilter.LogStore;
 
@@ -52,7 +50,10 @@ public class MainPaneProvider implements Provider<Pane> {
 
         ret.getStylesheets().add("/style.css");
 
-        HBox buttonPane = new HBox();
+        VBox configPane = new VBox();
+        final VBox hiddenConfigPane = new VBox();
+        HBox topButtonPane = new HBox();
+
         Button clearButton = new Button(Character.toString(TRASH_O)); //trash icon
         clearButton.getStyleClass().add("fontAwesome");
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -73,10 +74,32 @@ public class MainPaneProvider implements Provider<Pane> {
         ToggleButton rightDetailButton = getToggleButton(ARROW_CIRCLE_RIGHT, splitPane, detailGroup, Orientation.HORIZONTAL, logEntryTable, logEntryDetail);
         rightDetailButton.setSelected(true);
 
-        buttonPane.getChildren().addAll(clearButton, detailLabel, noDetailButton, leftDetailButton, downDetailButton, rightDetailButton);
+        hiddenConfigPane.getChildren().addAll(HBoxBuilder.create()
+                .children(detailLabel, noDetailButton, leftDetailButton, downDetailButton, rightDetailButton)
+                .build());
+        hiddenConfigPane.setVisible(false);
+        hiddenConfigPane.setManaged(false);
+
+        final ToggleButton expandButton = new ToggleButton(Character.toString(PLUS_SQUARE));
+        expandButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                boolean newVisible = !hiddenConfigPane.isVisible();
+                hiddenConfigPane.setVisible(newVisible);
+                hiddenConfigPane.setManaged(newVisible);
+                expandButton.setText(Character.toString(newVisible ? MINUS_SQUARE : PLUS_SQUARE));
+            }
+        });
+        expandButton.getStyleClass().add("fontAwesome");
+
+        configPane.getChildren().addAll(topButtonPane,
+                    hiddenConfigPane
+                );
+
+        topButtonPane.getChildren().addAll(expandButton, clearButton);
 
         ret.setCenter(splitPane);
-        ret.setTop(buttonPane);
+        ret.setTop(configPane);
 
         return ret;
     }
