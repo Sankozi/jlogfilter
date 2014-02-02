@@ -2,12 +2,16 @@ package org.sankozi.logfilter.gui;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -29,6 +33,9 @@ public class MainPaneProvider implements Provider<Pane> {
 
     @Inject
     LogStore logStore;
+
+    @Inject @Named("storedEntriesSize")
+    IntegerProperty storedEntriesSize;
 
     @Override
     public Pane get() {
@@ -96,7 +103,11 @@ public class MainPaneProvider implements Provider<Pane> {
                     hiddenConfigPane
                 );
 
-        topButtonPane.getChildren().addAll(expandButton, clearButton);
+        Label storedSizeLabel = new Label();
+        storedSizeLabel.textProperty().bind(Bindings.format(" Stored %s entries", storedEntriesSize));
+
+        topButtonPane.getChildren().addAll(expandButton, clearButton, storedSizeLabel);
+        topButtonPane.setAlignment(Pos.BASELINE_LEFT);
 
         ret.setCenter(splitPane);
         ret.setTop(configPane);

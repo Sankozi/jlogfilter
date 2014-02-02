@@ -1,7 +1,9 @@
 package org.sankozi.logfilter.gui;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -27,6 +29,9 @@ import java.util.ListIterator;
  */
 public class LogTableProvider implements Provider<TableView<LogEntry>> {
     private final static SimpleStringProperty EMPTY_STRING_PROPERTY = new SimpleStringProperty("");
+
+    @Inject @Named("storedEntriesSize")
+    IntegerProperty storedEntriesSize;
 
     @Inject
     LogStore logStore;
@@ -117,6 +122,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
+                        storedEntriesSize.set(logStore.size());
                         LogEntry selectedItem = ret.getSelectionModel().getSelectedItem();
                         int currentId = selectedItem == null ? -1 : selectedItem.getId();
 

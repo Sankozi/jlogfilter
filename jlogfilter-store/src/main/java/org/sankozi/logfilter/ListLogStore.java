@@ -22,6 +22,10 @@ public class ListLogStore implements LogStore, LogConsumer {
 
     private volatile Thread logStoreThread = null;
 
+    @Override
+    public int size() {
+        return entries.size();
+    }
 
     @Override
     public void add(LogEntry newEntry) {

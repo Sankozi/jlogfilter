@@ -20,4 +20,10 @@ public interface LogStore {
      * @return List containing up to n elements, can be empty, cannot be null
      */
     List<LogEntry> getTop(int n);
+
+    /**
+     * Return number of stored events
+     * @return number of stored events
+     */
+    int size();
 }
