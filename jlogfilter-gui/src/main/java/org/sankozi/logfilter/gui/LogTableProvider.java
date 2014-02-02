@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -32,6 +33,12 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
 
     @Inject @Named("storedEntriesSize")
     IntegerProperty storedEntriesSize;
+
+    @Inject @Named("freeMemoryKiB")
+    LongProperty freeMemory;
+
+    @Inject @Named("totalMemoryKiB")
+    LongProperty totalMemory;
 
     @Inject
     LogStore logStore;
@@ -123,6 +130,9 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
                     @Override
                     public void run() {
                         storedEntriesSize.set(logStore.size());
+                        Runtime runtime = Runtime.getRuntime();
+                        freeMemory.set(runtime.freeMemory() / 1024);
+                        totalMemory.set(runtime.totalMemory() / 1024);
                         LogEntry selectedItem = ret.getSelectionModel().getSelectedItem();
                         int currentId = selectedItem == null ? -1 : selectedItem.getId();
 

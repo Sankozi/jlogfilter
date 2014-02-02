@@ -7,6 +7,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -36,6 +37,12 @@ public class MainPaneProvider implements Provider<Pane> {
 
     @Inject @Named("storedEntriesSize")
     IntegerProperty storedEntriesSize;
+
+    @Inject @Named("freeMemoryKiB")
+    LongProperty freeMemory;
+
+    @Inject @Named("totalMemoryKiB")
+    LongProperty totalMemory;
 
     @Override
     public Pane get() {
@@ -106,7 +113,10 @@ public class MainPaneProvider implements Provider<Pane> {
         Label storedSizeLabel = new Label();
         storedSizeLabel.textProperty().bind(Bindings.format(" Stored %s entries", storedEntriesSize));
 
-        topButtonPane.getChildren().addAll(expandButton, clearButton, storedSizeLabel);
+        Label memoryLabel = new Label();
+        memoryLabel.textProperty().bind(Bindings.format(" Free memory %sKiB / %sKiB", freeMemory, totalMemory));
+
+        topButtonPane.getChildren().addAll(expandButton, clearButton, storedSizeLabel, memoryLabel);
         topButtonPane.setAlignment(Pos.BASELINE_LEFT);
 
         ret.setCenter(splitPane);
