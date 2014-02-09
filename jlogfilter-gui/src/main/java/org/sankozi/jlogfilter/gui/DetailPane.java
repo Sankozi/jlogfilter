@@ -13,15 +13,16 @@ public class DetailPane extends BorderPane {
     private LogEntry logEntry;
     private StringBuilder contentBuilder = new StringBuilder(50);
 
-    private WebView detailArea = new WebView(); {
-//        detailArea.setEditable(false);
-    }
+    private WebView detailArea = new WebView();
 
     {
         this.setCenter(detailArea);
     }
 
     public void setLogEntry(@Nullable LogEntry entry){
+        if(this.logEntry == entry){
+            return;
+        }
         this.logEntry = entry;
         if(this.logEntry != null){
             contentBuilder.setLength(0);
