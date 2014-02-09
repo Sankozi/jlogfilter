@@ -31,7 +31,8 @@ public class App extends com.cathive.fx.guice.GuiceApplication {
         primaryStage.setTitle("jlogfilter");
         primaryStage.show();
         LogConsumer lc = getInjector().getInstance(LogConsumer.class);
-        logProducers.add(new SocketHubAppenderLogProducer("localhost",7777));
+        LogEntryFactory lef =  getInjector().getInstance(LogEntryFactory.class);
+        logProducers.add(new SocketHubAppenderLogProducer("localhost",7777, lef));
         for(LogProducer lp: logProducers){
             lp.start(lc);
         }

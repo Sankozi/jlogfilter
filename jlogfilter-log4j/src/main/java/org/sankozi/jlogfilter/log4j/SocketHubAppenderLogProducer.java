@@ -2,10 +2,7 @@ package org.sankozi.jlogfilter.log4j;
 
 import com.google.common.base.Joiner;
 import org.apache.log4j.spi.LoggingEvent;
-import org.sankozi.jlogfilter.Level;
-import org.sankozi.jlogfilter.LogConsumer;
-import org.sankozi.jlogfilter.LogEntry;
-import org.sankozi.jlogfilter.LogProducer;
+import org.sankozi.jlogfilter.*;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -26,14 +23,17 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
 
     private final String name;
 
+    private final LogEntryFactory lef;
+
     private Thread producerThread;
 
     private volatile LogConsumer consumer;
 
-    public SocketHubAppenderLogProducer(String host, int port) throws IOException {
+    public SocketHubAppenderLogProducer(String host, int port, LogEntryFactory lef) throws IOException {
         this.host = host;
         this.port = port;
         this.name = "SocketHubAppenderProducer-" + host + ":" + port;
+        this.lef = lef;
     }
 
     public void start(LogConsumer consumer){
@@ -58,20 +58,34 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                     while(true){
                         LoggingEvent le = (LoggingEvent) ois.readObject();
                         Level level = Level.valueOf(le.getLevel().toString());
-                        LogEntry newEntry = le.getThrowableStrRep() != null
-                            ? new LogEntry(level, le.getLoggerName(), Objects.toString(le.getMessage()), STACKTRACE_JOINER.join(le.getThrowableStrRep()))
-                            : new LogEntry(level, le.getLoggerName(), Objects.toString(le.getMessage()));
+                        LogEntry newEntry = lef.level(level)
+                           .category(le.getLoggerName())
+                           .message(Objects.toString(le.getMessage()))
+                           .stacktrace(le.getThrowableStrRep() == null ? "" : STACKTRACE_JOINER.join(le.getThrowableStrRep()))
+                           .create();
                         consumer.add(newEntry);
                     }
                 } catch (IOException e) {
-                    consumer.add(new LogEntry(Level.INFO, "jlogfilter.log4j", name + " has encountered io error: " + e.getMessage()));
+                    consumer.add(lef.level(Level.INFO)
+                            .category("jlogfilter.log4j")
+                            .message(name + " has encountered io error: " + e.getMessage())
+                            .stacktrace("")
+                            .create());
                 }
                 Thread.sleep(5000);
             }
         } catch (InterruptedException ex){
-            consumer.add(new LogEntry(Level.INFO, "jlogfilter.log4j", name + " has been closed"));
+            consumer.add(lef.level(Level.WARN)
+                    .category("jlogfilter.log4j")
+                    .message( name + " has been closed")
+                    .stacktrace("")
+                    .create());
         } catch (Exception e) {
-            consumer.add(new LogEntry(Level.ERROR, "jlogfilter.log4j", name + " has encountered error: " + e.getMessage()));
+            consumer.add(lef.level(Level.WARN)
+                    .category("jlogfilter.log4j")
+                    .message(name + " has encountered error: " + e.getMessage())
+                    .stacktrace("")
+                    .create());
         }
     }
 
@@ -82,7 +96,11 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
         try {
             producerThread.join(1000);
             if(producerThread.isAlive()){
-                consumer.add(new LogEntry(Level.INFO, "jlogfilter.log4j", name + " has not ended in time"));
+                consumer.add(lef.level(Level.INFO)
+                        .category("jlogfilter.log4j")
+                        .message(name + " has not ended in time")
+                        .stacktrace("")
+                        .create());
             }
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
