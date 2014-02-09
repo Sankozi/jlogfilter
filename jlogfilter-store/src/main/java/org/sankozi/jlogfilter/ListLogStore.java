@@ -1,4 +1,4 @@
-package org.sankozi.logfilter;
+package org.sankozi.jlogfilter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -6,7 +6,6 @@ import com.google.inject.Singleton;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 

@@ -1,4 +1,4 @@
-package org.sankozi.logfilter.gui;
+package org.sankozi.jlogfilter.gui;
 
 /**
  *

@@ -1,4 +1,4 @@
-package org.sankozi.logfilter;
+package org.sankozi.jlogfilter;
 
 /**
  * Object that

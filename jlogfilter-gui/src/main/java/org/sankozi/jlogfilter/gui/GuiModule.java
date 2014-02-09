@@ -1,8 +1,7 @@
-package org.sankozi.logfilter.gui;
+package org.sankozi.jlogfilter.gui;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -10,7 +9,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
-import org.sankozi.logfilter.LogEntry;
+import org.sankozi.jlogfilter.LogEntry;
 
 /**
  *

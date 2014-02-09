@@ -1,4 +1,4 @@
-package org.sankozi.logfilter.gui;
+package org.sankozi.jlogfilter.gui;
 
 import com.google.common.collect.Lists;
 import javafx.scene.Node;

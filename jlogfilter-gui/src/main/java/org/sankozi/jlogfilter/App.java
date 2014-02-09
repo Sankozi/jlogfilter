@@ -1,21 +1,15 @@
-package org.sankozi.logfilter;
+package org.sankozi.jlogfilter;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import org.sankozi.logfilter.gui.GuiModule;
-import org.sankozi.logfilter.log4j.SocketHubAppenderLogProducer;
+import org.sankozi.jlogfilter.gui.GuiModule;
+import org.sankozi.jlogfilter.log4j.SocketHubAppenderLogProducer;
 
 import java.util.List;
 

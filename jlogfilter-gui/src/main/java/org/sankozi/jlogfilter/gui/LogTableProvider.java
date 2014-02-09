@@ -1,4 +1,4 @@
-package org.sankozi.logfilter.gui;
+package org.sankozi.jlogfilter.gui;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -6,22 +6,19 @@ import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
-import org.sankozi.logfilter.Level;
-import org.sankozi.logfilter.LogEntry;
-import org.sankozi.logfilter.LogStore;
+import org.sankozi.jlogfilter.Level;
+import org.sankozi.jlogfilter.LogEntry;
+import org.sankozi.jlogfilter.LogStore;
 
 import javax.annotation.Nullable;
 import javax.inject.Provider;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 

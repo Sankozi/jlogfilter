@@ -1,4 +1,4 @@
-package org.sankozi.logfilter.test;
+package org.sankozi.jlogfilter.test;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -7,12 +7,10 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.apache.log4j.net.SocketHubAppender;
-import org.sankozi.logfilter.gui.SaneTilePane;
+import org.sankozi.jlogfilter.gui.SaneTilePane;
 
 
 /**

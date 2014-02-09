@@ -1,10 +1,8 @@
-package org.sankozi.logfilter.gui;
+package org.sankozi.jlogfilter.gui;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -16,10 +14,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import org.sankozi.logfilter.LogEntry;
-import org.sankozi.logfilter.LogStore;
+import org.sankozi.jlogfilter.LogEntry;
+import org.sankozi.jlogfilter.LogStore;
 
-import static org.sankozi.logfilter.gui.FontAwesomeIcons.*;
+import static org.sankozi.jlogfilter.gui.FontAwesomeIcons.*;
 
 /**
  *

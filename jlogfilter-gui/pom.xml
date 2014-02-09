@@ -22,7 +22,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>org.sankozi.logfilter.App</mainClass>
+                                    <mainClass>org.sankozi.jlogfilter.App</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

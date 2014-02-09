@@ -1,4 +1,4 @@
-package org.sankozi.logfilter;
+package org.sankozi.jlogfilter;
 
 import com.google.inject.AbstractModule;
 

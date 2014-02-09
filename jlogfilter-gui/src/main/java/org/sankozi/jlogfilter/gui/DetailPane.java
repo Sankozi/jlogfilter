@@ -1,11 +1,8 @@
-package org.sankozi.logfilter.gui;
+package org.sankozi.jlogfilter.gui;
 
-import com.google.inject.internal.util.$ToStringBuilder;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
-import org.sankozi.logfilter.LogEntry;
+import org.sankozi.jlogfilter.LogEntry;
 
 import javax.annotation.Nullable;
 

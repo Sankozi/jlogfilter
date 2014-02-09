@@ -1,17 +1,16 @@
-package org.sankozi.logfilter.log4j;
+package org.sankozi.jlogfilter.log4j;
 
 import com.google.common.base.Joiner;
 import org.apache.log4j.spi.LoggingEvent;
-import org.sankozi.logfilter.Level;
-import org.sankozi.logfilter.LogConsumer;
-import org.sankozi.logfilter.LogEntry;
-import org.sankozi.logfilter.LogProducer;
+import org.sankozi.jlogfilter.Level;
+import org.sankozi.jlogfilter.LogConsumer;
+import org.sankozi.jlogfilter.LogEntry;
+import org.sankozi.jlogfilter.LogProducer;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.*;
