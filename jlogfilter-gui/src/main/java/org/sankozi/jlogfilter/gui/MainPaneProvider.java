@@ -112,7 +112,7 @@ public class MainPaneProvider implements Provider<Pane> {
         storedSizeLabel.textProperty().bind(Bindings.format(" Stored %s entries", storedEntriesSize));
 
         Label memoryLabel = new Label();
-        memoryLabel.textProperty().bind(Bindings.format(" Free memory %sKiB / %sKiB", freeMemory, totalMemory));
+        memoryLabel.textProperty().bind(Bindings.format(" Free memory %sMiB / %sMiB", freeMemory.divide(1024), totalMemory.divide(1024)));
 
         topButtonPane.getChildren().addAll(expandButton, clearButton, storedSizeLabel, memoryLabel);
         topButtonPane.setAlignment(Pos.BASELINE_LEFT);
