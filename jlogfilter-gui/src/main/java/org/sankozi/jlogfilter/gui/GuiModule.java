@@ -11,6 +11,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
 import org.sankozi.jlogfilter.LogEntry;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  *
  */
@@ -19,6 +22,10 @@ public class GuiModule extends AbstractModule{
     protected void configure() {
         bind(Pane.class).annotatedWith(Names.named("main")).toProvider(MainPaneProvider.class);
         bind(new TypeLiteral<TableView<LogEntry>>(){}).toProvider(LogTableProvider.class);
+
+        bind(Path.class).annotatedWith(Names.named("configurationPath")).toInstance(Paths.get(System.getProperty("user.home"), ".jlogfilter", "configuration.json"));
+
+        bind(ConfigurationStore.class).asEagerSingleton();
 
         //properties
         bind(IntegerProperty.class).annotatedWith(Names.named("storedEntriesSize")).toInstance(new SimpleIntegerProperty(0));

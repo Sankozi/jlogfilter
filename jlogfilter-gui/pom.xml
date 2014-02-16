@@ -53,12 +53,21 @@
             <artifactId>jsr305</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>com.cathive.fx</groupId>
             <artifactId>fx-guice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
         </dependency>
         <dependency>
             <groupId>org.sankozi</groupId>
