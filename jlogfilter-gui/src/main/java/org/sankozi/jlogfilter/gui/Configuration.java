@@ -11,6 +11,7 @@ public class Configuration {
 
 
 enum DetailPaneLocation {
+    NONE,
     LEFT,
     RIGHT,
     BOTTOM

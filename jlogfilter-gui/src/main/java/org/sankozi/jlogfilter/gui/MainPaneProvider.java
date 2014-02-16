@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.sankozi.jlogfilter.LogEntry;
 import org.sankozi.jlogfilter.LogStore;
+import sun.rmi.runtime.RuntimeUtil;
 
 import static org.sankozi.jlogfilter.gui.FontAwesomeIcons.*;
 
@@ -33,6 +34,9 @@ public class MainPaneProvider implements Provider<Pane> {
     @Inject
     LogStore logStore;
 
+    @Inject
+    ConfigurationStore configurationStore;
+
     @Inject @Named("storedEntriesSize")
     IntegerProperty storedEntriesSize;
 
@@ -45,10 +49,9 @@ public class MainPaneProvider implements Provider<Pane> {
     @Override
     public Pane get() {
         BorderPane ret = new BorderPane();
+        Configuration configuration = configurationStore.getConfiguration();
 
         final SplitPane splitPane = new SplitPane();
-        splitPane.setOrientation(Orientation.HORIZONTAL);
-        splitPane.getItems().setAll(logEntryTable, logEntryDetail);
         logEntryTable.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<LogEntry>() {
             @Override
             public void onChanged(Change<? extends LogEntry> change) {
@@ -80,11 +83,10 @@ public class MainPaneProvider implements Provider<Pane> {
         detailLabel.getStyleClass().add("fontAwesome");
 
         ToggleGroup detailGroup = new ToggleGroup();
-        ToggleButton noDetailButton = getToggleButton(CIRCLE, splitPane, detailGroup, Orientation.HORIZONTAL, logEntryTable);
-        ToggleButton leftDetailButton = getToggleButton(ARROW_CIRCLE_LEFT, splitPane, detailGroup, Orientation.HORIZONTAL, logEntryDetail, logEntryTable);
-        ToggleButton downDetailButton = getToggleButton(ARROW_CIRCLE_DOWN, splitPane, detailGroup, Orientation.VERTICAL, logEntryTable, logEntryDetail);
-        ToggleButton rightDetailButton = getToggleButton(ARROW_CIRCLE_RIGHT, splitPane, detailGroup, Orientation.HORIZONTAL, logEntryTable, logEntryDetail);
-        rightDetailButton.setSelected(true);
+        ToggleButton noDetailButton = getToggleButton(configuration, CIRCLE, splitPane, detailGroup, DetailPaneLocation.NONE);
+        ToggleButton leftDetailButton = getToggleButton(configuration, ARROW_CIRCLE_LEFT, splitPane, detailGroup, DetailPaneLocation.LEFT);
+        ToggleButton downDetailButton = getToggleButton(configuration, ARROW_CIRCLE_DOWN, splitPane, detailGroup, DetailPaneLocation.BOTTOM);
+        ToggleButton rightDetailButton = getToggleButton(configuration, ARROW_CIRCLE_RIGHT, splitPane, detailGroup, DetailPaneLocation.RIGHT);
 
         hiddenConfigPane.getChildren().addAll(HBoxBuilder.create()
                 .children(detailLabel, noDetailButton, leftDetailButton, downDetailButton, rightDetailButton)
@@ -123,18 +125,49 @@ public class MainPaneProvider implements Provider<Pane> {
         return ret;
     }
 
-    private ToggleButton getToggleButton(char icon, final SplitPane splitPane, ToggleGroup detailGroup,
-                                         final Orientation orientation, final Node... components) {
-        ToggleButton downDetailButton = new ToggleButton(Character.toString(icon));
-        downDetailButton.getStyleClass().add("fontAwesome");
-        downDetailButton.setToggleGroup(detailGroup);
-        downDetailButton.setOnAction(new EventHandler<ActionEvent>() {
+    private ToggleButton getToggleButton(Configuration conf, char icon, final SplitPane splitPane, ToggleGroup detailGroup, final DetailPaneLocation dpl) {
+                                         //final Orientation orientation, final Node... components) {
+        ToggleButton button = new ToggleButton(Character.toString(icon));
+        button.getStyleClass().add("fontAwesome");
+        button.setToggleGroup(detailGroup);
+
+        final Orientation orientation;
+        final Node[] components;
+        switch(dpl){
+            case NONE:
+                orientation = Orientation.VERTICAL;
+                components = new Node[]{logEntryTable};
+                break;
+            case BOTTOM:
+                orientation = Orientation.VERTICAL;
+                components = new Node[]{logEntryTable,  logEntryDetail};
+                break;
+            case LEFT:
+                orientation = Orientation.HORIZONTAL;
+                components = new Node[]{logEntryDetail, logEntryTable};
+                break;
+            case RIGHT:
+                orientation = Orientation.HORIZONTAL;
+                components = new Node[]{logEntryTable,  logEntryDetail};
+                break;
+            default:
+                throw new RuntimeException("unsupported " + dpl);
+        }
+        button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 splitPane.setOrientation(orientation);
                 splitPane.getItems().setAll(components);
+                Configuration conf = configurationStore.getConfiguration();
+                conf.detailPaneLocation = dpl;
+                configurationStore.saveConfiguration(conf);
             }
         });
-        return downDetailButton;
+        if(conf.detailPaneLocation == dpl){
+            button.setSelected(true);
+            splitPane.setOrientation(orientation);
+            splitPane.getItems().setAll(components);
+        }
+        return button;
     }
 }

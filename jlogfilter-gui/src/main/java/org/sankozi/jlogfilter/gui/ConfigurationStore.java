@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -31,7 +32,11 @@ public final class ConfigurationStore {
             if(configurationFilePath.toFile().isFile()){
                 ret = new Gson().fromJson(Files.toString(configurationFilePath.toFile(), Charsets.UTF_8), Configuration.class);
             } else {
-                configurationFilePath.toFile().createNewFile();
+                File confFile = configurationFilePath.toFile();
+                if(!confFile.getParentFile().isDirectory() && !confFile.getParentFile().mkdirs()){
+                    throw new RuntimeException("cannot create directory " + confFile.getParentFile().getAbsoluteFile());
+                }
+                confFile.createNewFile();
                 saveConfiguration(new Configuration());
                 ret = getConfiguration();
             }
