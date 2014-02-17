@@ -79,6 +79,13 @@ public class MainPaneProvider implements Provider<Pane> {
         });
         clearButton.setTooltip(new Tooltip("Delete all stored log entries"));
 
+        Button gcButton = ButtonBuilder.create().text("GC").onAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                Runtime.getRuntime().gc();
+            }
+        }).styleClass("buttonOther").build();
+
         Label detailLabel = new Label(Character.toString(LIST));  //list
         detailLabel.getStyleClass().add("fontAwesome");
 
@@ -116,7 +123,7 @@ public class MainPaneProvider implements Provider<Pane> {
         Label memoryLabel = new Label();
         memoryLabel.textProperty().bind(Bindings.format(" Free memory %sMiB / %sMiB", freeMemory.divide(1024), totalMemory.divide(1024)));
 
-        topButtonPane.getChildren().addAll(expandButton, clearButton, storedSizeLabel, memoryLabel);
+        topButtonPane.getChildren().addAll(expandButton, clearButton, gcButton, storedSizeLabel, memoryLabel);
         topButtonPane.setAlignment(Pos.BASELINE_LEFT);
 
         ret.setCenter(splitPane);

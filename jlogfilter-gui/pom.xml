@@ -65,11 +65,6 @@
             <artifactId>fx-guice</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-        </dependency>
-        <dependency>
             <groupId>org.sankozi</groupId>
             <artifactId>jlogfilter-store</artifactId>
             <version>${project.version}</version>
@@ -78,6 +73,10 @@
             <groupId>org.sankozi</groupId>
             <artifactId>jlogfilter-log4j</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
 </project>
