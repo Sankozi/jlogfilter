@@ -9,6 +9,7 @@ import javafx.beans.property.LongProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -16,6 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.sankozi.jlogfilter.LogEntry;
 import org.sankozi.jlogfilter.LogStore;
+import org.sankozi.jlogfilter.util.NumberField;
 import sun.rmi.runtime.RuntimeUtil;
 
 import static org.sankozi.jlogfilter.gui.FontAwesomeIcons.*;
@@ -46,6 +48,9 @@ public class MainPaneProvider implements Provider<Pane> {
     @Inject @Named("totalMemoryKiB")
     LongProperty totalMemory;
 
+    @Inject @Named("logEntriesTableSize")
+    IntegerProperty logEntriesTableSize;
+
     @Override
     public Pane get() {
         BorderPane ret = new BorderPane();
@@ -66,25 +71,8 @@ public class MainPaneProvider implements Provider<Pane> {
         ret.getStylesheets().add("/style.css");
 
         VBox configPane = new VBox();
-        final VBox hiddenConfigPane = new VBox();
+
         HBox topButtonPane = new HBox();
-
-        Button clearButton = new Button(Character.toString(TRASH_O)); //trash icon
-        clearButton.getStyleClass().add("fontAwesome");
-        clearButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                logStore.clear();
-            }
-        });
-        clearButton.setTooltip(new Tooltip("Delete all stored log entries"));
-
-        Button gcButton = ButtonBuilder.create().text("GC").onAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                Runtime.getRuntime().gc();
-            }
-        }).styleClass("buttonOther").build();
 
         Label detailLabel = new Label(Character.toString(LIST));  //list
         detailLabel.getStyleClass().add("fontAwesome");
@@ -95,12 +83,56 @@ public class MainPaneProvider implements Provider<Pane> {
         ToggleButton downDetailButton = getToggleButton(configuration, ARROW_CIRCLE_DOWN, splitPane, detailGroup, DetailPaneLocation.BOTTOM);
         ToggleButton rightDetailButton = getToggleButton(configuration, ARROW_CIRCLE_RIGHT, splitPane, detailGroup, DetailPaneLocation.RIGHT);
 
-        hiddenConfigPane.getChildren().addAll(HBoxBuilder.create()
-                .children(detailLabel, noDetailButton, leftDetailButton, downDetailButton, rightDetailButton)
-                .build());
+        final VBox hiddenConfigPane = new VBox();
+        hiddenConfigPane.setPadding(new Insets(5));
+        hiddenConfigPane.setSpacing(5);
+        hiddenConfigPane.getChildren().addAll(
+                HBoxBuilder.create()
+                        .children(detailLabel, noDetailButton, leftDetailButton, downDetailButton, rightDetailButton)
+                        .build(),
+                HBoxBuilder.create().alignment(Pos.BASELINE_LEFT).children(
+                        new Label("Max rows in table:"),
+                        NumberField.bidirectionalBinding(logEntriesTableSize)
+                ).build());
         hiddenConfigPane.setVisible(false);
         hiddenConfigPane.setManaged(false);
 
+        configPane.getChildren().addAll(topButtonPane,
+                    hiddenConfigPane
+                );
+
+        topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(), getButton(), storedSizeLabel(), memoryLabel());
+        topButtonPane.setAlignment(Pos.BASELINE_LEFT);
+
+        ret.setCenter(splitPane);
+        ret.setTop(configPane);
+
+        return ret;
+    }
+
+    private Button getButton() {
+        return ButtonBuilder.create().text("GC").onAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    Runtime.getRuntime().gc();
+                }
+            }).styleClass("buttonOther").build();
+    }
+
+    private Button clearButton() {
+        Button clearButton = new Button(Character.toString(TRASH_O)); //trash icon
+        clearButton.getStyleClass().add("fontAwesome");
+        clearButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                logStore.clear();
+            }
+        });
+        clearButton.setTooltip(new Tooltip("Delete all stored log entries"));
+        return clearButton;
+    }
+
+    private ToggleButton expandButton(final VBox hiddenConfigPane) {
         final ToggleButton expandButton = new ToggleButton(Character.toString(PLUS_SQUARE));
         expandButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -112,24 +144,19 @@ public class MainPaneProvider implements Provider<Pane> {
             }
         });
         expandButton.getStyleClass().add("fontAwesome");
+        return expandButton;
+    }
 
-        configPane.getChildren().addAll(topButtonPane,
-                    hiddenConfigPane
-                );
-
-        Label storedSizeLabel = new Label();
-        storedSizeLabel.textProperty().bind(Bindings.format(" Stored %s entries", storedEntriesSize));
-
+    private Label memoryLabel() {
         Label memoryLabel = new Label();
         memoryLabel.textProperty().bind(Bindings.format(" Free memory %sMiB / %sMiB", freeMemory.divide(1024), totalMemory.divide(1024)));
+        return memoryLabel;
+    }
 
-        topButtonPane.getChildren().addAll(expandButton, clearButton, gcButton, storedSizeLabel, memoryLabel);
-        topButtonPane.setAlignment(Pos.BASELINE_LEFT);
-
-        ret.setCenter(splitPane);
-        ret.setTop(configPane);
-
-        return ret;
+    private Label storedSizeLabel() {
+        Label storedSizeLabel = new Label();
+        storedSizeLabel.textProperty().bind(Bindings.format(" Stored %s entries", storedEntriesSize));
+        return storedSizeLabel;
     }
 
     private ToggleButton getToggleButton(Configuration conf, char icon, final SplitPane splitPane, ToggleGroup detailGroup, final DetailPaneLocation dpl) {

@@ -37,6 +37,9 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     @Inject @Named("totalMemoryKiB")
     LongProperty totalMemory;
 
+    @Inject @Named("logEntriesTableSize")
+    IntegerProperty logEntriesTableSize;
+
     @Inject
     LogStore logStore;
 
@@ -101,7 +104,6 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         final TableView<LogEntry> ret = new TableView<LogEntry>();
         ret.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         ret.getColumns().addAll(levelColumn, messageColumn, categoryColumn, stacktraceColumn);
-        final Callback<TableView<LogEntry>, TableRow<LogEntry>> rowFactory = ret.getRowFactory();
         ret.setRowFactory(new Callback<TableView<LogEntry>, TableRow<LogEntry>>() {
             @Override
             public TableRow<LogEntry> call(TableView<LogEntry> table) {
@@ -121,7 +123,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         logStore.addChangeListener(new Runnable() {
             @Override
             public void run() {
-                final List<LogEntry> entries = logStore.getTop(500);
+                final List<LogEntry> entries = logStore.getTop(logEntriesTableSize.get());
                 final ListIterator<LogEntry> iNew = entries.listIterator();
                 Platform.runLater(new Runnable() {
                     @Override

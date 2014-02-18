@@ -6,7 +6,7 @@
 
     <properties>
         <!-- Unique entry point for version number management -->
-        <global.version>0.3-SNAPSHOT</global.version>
+        <global.version>0.3.1-SNAPSHOT</global.version>
     </properties>
 
     <groupId>org.sankozi</groupId>
