@@ -14,7 +14,9 @@ public class NumberField extends TextField {
 
     public static NumberField bidirectionalBinding(IntegerProperty property){
         NumberField ret = new NumberField();
-        ret.textProperty().bindBidirectional(property, new DecimalFormat());
+        DecimalFormat df = new DecimalFormat();
+        df.setGroupingSize(1000); //max int doesn't work
+        ret.textProperty().bindBidirectional(property, df);
         return ret;
     }
 

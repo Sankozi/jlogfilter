@@ -15,7 +15,8 @@ public class ConfigurationStoreTest {
         File testFile = File.createTempFile("testTempFile",".json");
         testFile.delete();
         assert !testFile.isFile();
-        ConfigurationStore store = new ConfigurationStore(testFile.toPath());
+        ConfigurationStore store = new ConfigurationStore();
+        store.configurationFilePath = testFile.toPath();
         Configuration conf = store.getConfiguration();
         assert testFile.isFile();
 
