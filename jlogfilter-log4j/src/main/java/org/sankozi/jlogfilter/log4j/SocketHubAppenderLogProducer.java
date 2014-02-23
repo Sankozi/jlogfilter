@@ -17,6 +17,7 @@ import static com.google.common.base.Preconditions.*;
  */
 public final class SocketHubAppenderLogProducer implements LogProducer {
     private final static Joiner STACKTRACE_JOINER = Joiner.on(" \n").skipNulls();
+    private final static  String[] EMPTY_STRING_ARR = new String[]{};
 
     private final String host;
     private final int port;
@@ -61,7 +62,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                         LogEntry newEntry = lef.level(level)
                            .category(le.getLoggerName())
                            .message(Objects.toString(le.getMessage()))
-                           .stacktrace(le.getThrowableStrRep() == null ? "" : STACKTRACE_JOINER.join(le.getThrowableStrRep()))
+                           .stacktrace(le.getThrowableStrRep() == null ? EMPTY_STRING_ARR : le.getThrowableStrRep())
                            .create();
                         consumer.add(newEntry);
                     }
@@ -69,7 +70,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                     consumer.add(lef.level(Level.INFO)
                             .category("jlogfilter.log4j")
                             .message(name + " has encountered io error: " + e.getMessage())
-                            .stacktrace("")
+                            .stacktrace(EMPTY_STRING_ARR)
                             .create());
                 }
                 Thread.sleep(5000);
@@ -78,13 +79,13 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
             consumer.add(lef.level(Level.WARN)
                     .category("jlogfilter.log4j")
                     .message( name + " has been closed")
-                    .stacktrace("")
+                    .stacktrace(EMPTY_STRING_ARR)
                     .create());
         } catch (Exception e) {
             consumer.add(lef.level(Level.WARN)
                     .category("jlogfilter.log4j")
                     .message(name + " has encountered error: " + e.getMessage())
-                    .stacktrace("")
+                    .stacktrace(EMPTY_STRING_ARR)
                     .create());
         }
     }
@@ -99,7 +100,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                 consumer.add(lef.level(Level.INFO)
                         .category("jlogfilter.log4j")
                         .message(name + " has not ended in time")
-                        .stacktrace("")
+                        .stacktrace(EMPTY_STRING_ARR)
                         .create());
             }
         } catch (InterruptedException ex) {

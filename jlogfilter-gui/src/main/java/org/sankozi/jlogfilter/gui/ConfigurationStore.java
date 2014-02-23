@@ -6,10 +6,12 @@ import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ListProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,15 +24,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ConfigurationStore {
     private volatile Configuration configuration;
 
-
+    //injected in setters
+    ListProperty<String> emphasisedStacktracePackages;
     IntegerProperty logEntriesTableSize;
+
     @Inject @Named("configurationPath")
     Path configurationFilePath;
-
-    @PostConstruct
-    public void init(){
-
-    }
 
     public Configuration getConfiguration() {
         if(configuration != null){
@@ -52,8 +51,6 @@ public class ConfigurationStore {
                 ret = getConfiguration();
             }
 
-            logEntriesTableSize.set(ret.logEntriesTableSize);
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -73,11 +70,27 @@ public class ConfigurationStore {
     @Inject
     public void setLogEntriesTableSize(@Named("logEntriesTableSize") IntegerProperty logEntriesTableSize) {
         this.logEntriesTableSize = logEntriesTableSize;
+        logEntriesTableSize.set(getConfiguration().logEntriesTableSize);
         logEntriesTableSize.addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observableValue, Number number, Number number2) {
                 Configuration conf = getConfiguration();
                 conf.logEntriesTableSize = number2.intValue();
+                saveConfiguration(conf);
+            }
+        });
+    }
+
+    @Inject
+    public void setEmphasisedStacktracePackages(@Named("emphasisedStacktraces") ListProperty<String> emphasisedStacktracePackages) {
+        this.emphasisedStacktracePackages = emphasisedStacktracePackages;
+        System.out.println("emphasised categories " + getConfiguration().emphasisedStacktraces);
+        emphasisedStacktracePackages.set(FXCollections.observableArrayList(getConfiguration().emphasisedStacktraces));
+        emphasisedStacktracePackages.addListener(new ChangeListener<ObservableList<String>>() {
+            @Override
+            public void changed(ObservableValue<? extends ObservableList<String>> observableValue, ObservableList<String> strings, ObservableList<String> strings2) {
+                Configuration conf = getConfiguration();
+                conf.emphasisedStacktraces = strings2;
                 saveConfiguration(conf);
             }
         });

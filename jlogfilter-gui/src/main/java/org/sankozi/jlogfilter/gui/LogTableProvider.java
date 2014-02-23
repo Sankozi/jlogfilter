@@ -93,11 +93,11 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         stacktraceColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
-                String stacktrace = cell.getValue().getStacktrace();
-                if(stacktrace.isEmpty()){
+                String[] stacktrace = cell.getValue().getStacktrace();
+                if(stacktrace.length == 0){
                     return EMPTY_STRING_PROPERTY;
                 } else {
-                    return new SimpleStringProperty(stacktrace.substring(0, stacktrace.indexOf('\n')) + "[...]");
+                    return new SimpleStringProperty(stacktrace[0] + " [...]");
                 }
             }
         });

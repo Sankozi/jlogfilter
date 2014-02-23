@@ -17,7 +17,7 @@ public final class LogEntryFactory {
     private String category = "";
     private String message = "";
     private Level level = Level.TRACE;
-    private String stacktrace ="";
+    private String[] stacktrace = {};
 
     @Inject
     public LogEntryFactory(StringPool stringPool){
@@ -47,7 +47,7 @@ public final class LogEntryFactory {
         return this;
     }
 
-    public LogEntryFactory stacktrace(String stacktrace){
+    public LogEntryFactory stacktrace(String[] stacktrace){
         this.stacktrace = stacktrace;
         return this;
     }

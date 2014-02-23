@@ -19,9 +19,9 @@ public final class LogEntry {
     private final String category;
     private final String message;
     private final Level level;
-    private final String stacktrace;
+    private final String[] stacktrace;
 
-    LogEntry(int id, Level level, String category, String message, String stacktrace) {
+    LogEntry(int id, Level level, String category, String message, String[] stacktrace) {
         this.id = id;
         this.level = level;
         this.category = category;
@@ -45,7 +45,7 @@ public final class LogEntry {
         return message;
     }
 
-    public String getStacktrace() {
+    public String[] getStacktrace() {
         return stacktrace;
     }
 }

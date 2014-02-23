@@ -5,6 +5,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.LongProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
@@ -49,6 +50,9 @@ public class MainPaneProvider implements Provider<Pane> {
 
     @Inject @Named("logEntriesTableSize")
     IntegerProperty logEntriesTableSize;
+
+    @Inject @Named("emphasisedStacktraces")
+    ListProperty<String> emphasisedStacktracePackages;
 
     @Override
     public Pane get() {

@@ -3,10 +3,7 @@ package org.sankozi.jlogfilter.gui;
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.LongProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.*;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
 import org.sankozi.jlogfilter.LogEntry;
@@ -30,6 +27,8 @@ public class GuiModule extends AbstractModule{
         bind(LongProperty.class).annotatedWith(Names.named("totalMemoryKiB")).toInstance(new SimpleLongProperty(0));
         bind(LongProperty.class).annotatedWith(Names.named("freeMemoryKiB")).toInstance(new SimpleLongProperty(0));
         bind(IntegerProperty.class).annotatedWith(Names.named("logEntriesTableSize")).toInstance(new SimpleIntegerProperty(500));
+
+        bind(new TypeLiteral<ListProperty<String>>(){}).annotatedWith(Names.named("emphasisedStacktraces")).toInstance(new SimpleListProperty<String>());
 
         bind(ConfigurationStore.class).asEagerSingleton();
     }
