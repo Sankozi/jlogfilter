@@ -25,7 +25,11 @@ public final class LogEntryFactory {
     }
 
     public LogEntry create(){
-        return new LogEntry(id, level, category, message, stacktrace);
+        try {
+            return new LogEntry(id, level, category, message, stacktrace);
+        } finally {
+            id = ID_GENERATOR.incrementAndGet();
+        }
     }
 
     public LogEntryFactory level(Level level){

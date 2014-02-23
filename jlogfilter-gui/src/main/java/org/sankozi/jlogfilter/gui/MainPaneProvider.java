@@ -18,7 +18,6 @@ import javafx.scene.layout.*;
 import org.sankozi.jlogfilter.LogEntry;
 import org.sankozi.jlogfilter.LogStore;
 import org.sankozi.jlogfilter.util.NumberField;
-import sun.rmi.runtime.RuntimeUtil;
 
 import static org.sankozi.jlogfilter.gui.FontAwesomeIcons.*;
 
@@ -125,7 +124,7 @@ public class MainPaneProvider implements Provider<Pane> {
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                logStore.clear();
+                logStore.deleteAll();
             }
         });
         clearButton.setTooltip(new Tooltip("Delete all stored log entries"));

@@ -1,11 +1,20 @@
 package org.sankozi.jlogfilter;
 
+import com.google.common.base.Function;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Immutable object containing information about Log entry
  */
 public final class LogEntry {
+    final static Function<LogEntry, Integer> TO_ID = new Function<LogEntry, Integer>() {
+        @Override
+        public Integer apply(LogEntry input) {
+            return input.getId();
+        }
+    };
+
     private final int id;
     private final String category;
     private final String message;

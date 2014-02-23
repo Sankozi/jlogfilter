@@ -8,10 +8,15 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
 import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogEntry;
@@ -102,6 +107,15 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     @Override
     public TableView<LogEntry> get() {
         final TableView<LogEntry> ret = new TableView<LogEntry>();
+        ret.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if(keyEvent.getCode() == KeyCode.DELETE){
+                    logStore.delete(ret.getSelectionModel().getSelectedItems());
+                }
+            }
+        });
+//        ret.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         ret.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         ret.getColumns().addAll(levelColumn, messageColumn, categoryColumn, stacktraceColumn);
         ret.setRowFactory(new Callback<TableView<LogEntry>, TableRow<LogEntry>>() {

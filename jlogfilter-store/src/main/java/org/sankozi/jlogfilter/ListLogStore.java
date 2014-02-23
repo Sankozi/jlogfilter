@@ -1,13 +1,15 @@
 package org.sankozi.jlogfilter;
 
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
-import org.sankozi.jlogfilter.util.StringPool;
 
-import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -40,6 +42,27 @@ public class ListLogStore implements LogStore, LogConsumer {
         entryQueue.add(newEntry);
     }
 
+    @Override
+    public void deleteIds(Collection<Integer> ids) {
+        Set<Integer> idsToDelete = Sets.newHashSet(ids);
+        synchronized (this){
+            Iterator<LogEntry> i = entries.iterator();
+            while(!idsToDelete.isEmpty()){
+                LogEntry le = i.next();
+                if(idsToDelete.contains(le.getId())){
+                    i.remove();
+                    idsToDelete.remove(le.getId());
+                }
+            }
+        }
+        fireEntriesChangeListeners();
+    }
+
+    @Override
+    public void delete(Collection<LogEntry> le) {
+        deleteIds(Collections2.transform(le, LogEntry.TO_ID));
+    }
+
     private Thread initLogStoreThread(){
         Thread ret = new Thread(new Runnable() {
             @Override
@@ -64,7 +87,7 @@ public class ListLogStore implements LogStore, LogConsumer {
                 System.out.println("adding " + drain.size() + " log entries");
                 synchronized (this) {
                     entries.addAll(drain);
-                    fireNewEntriesListeners();
+                    fireEntriesChangeListeners();
                 }
                 drain.clear();
             }
@@ -77,7 +100,7 @@ public class ListLogStore implements LogStore, LogConsumer {
     @Override
     public synchronized void addAll(Collection<LogEntry> entries) {
         this.entries.addAll(entries);
-        fireNewEntriesListeners();
+        fireEntriesChangeListeners();
     }
 
     @Override
@@ -85,16 +108,16 @@ public class ListLogStore implements LogStore, LogConsumer {
         listeners.add(listener);
     }
 
-    private synchronized void fireNewEntriesListeners(){
+    private synchronized void fireEntriesChangeListeners(){
         for(Runnable runnable: listeners){
             runnable.run();
         }
     }
 
     @Override
-    public synchronized void clear() {
+    public synchronized void deleteAll() {
         entries.clear();
-        fireNewEntriesListeners();
+        fireEntriesChangeListeners();
     }
 
     @Override

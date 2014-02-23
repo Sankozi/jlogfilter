@@ -10,7 +10,10 @@ public interface LogStore {
     void add(LogEntry newEntry);
     void addAll(Collection<LogEntry> enties);
 
-    void clear();
+    void deleteAll();
+
+    void deleteIds(Collection<Integer> ids);
+    void delete(Collection<LogEntry> le);
 
     void addChangeListener(Runnable listener);
 
