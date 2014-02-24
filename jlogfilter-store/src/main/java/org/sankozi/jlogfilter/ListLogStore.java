@@ -43,16 +43,14 @@ public class ListLogStore implements LogStore, LogConsumer {
     }
 
     @Override
-    public void deleteIds(Collection<Integer> ids) {
+    public synchronized void deleteIds(Collection<Integer> ids) {
         Set<Integer> idsToDelete = Sets.newHashSet(ids);
-        synchronized (this){
-            Iterator<LogEntry> i = entries.iterator();
-            while(!idsToDelete.isEmpty()){
-                LogEntry le = i.next();
-                if(idsToDelete.contains(le.getId())){
-                    i.remove();
-                    idsToDelete.remove(le.getId());
-                }
+        Iterator<LogEntry> i = entries.iterator();
+        while(!idsToDelete.isEmpty()){
+            LogEntry le = i.next();
+            if(idsToDelete.contains(le.getId())){
+                i.remove();
+                idsToDelete.remove(le.getId());
             }
         }
         fireEntriesChangeListeners();
