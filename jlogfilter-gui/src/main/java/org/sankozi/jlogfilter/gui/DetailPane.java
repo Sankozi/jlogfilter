@@ -51,11 +51,9 @@ public class DetailPane extends BorderPane {
             for(String stack: logEntry.getStacktrace()){
                 boolean nextEmph;
                 if(stack.startsWith("\tat ")){
-                    System.out.println("1>" + stack);
                     String prefix = categoryPrefixes.floor(stack.substring(4));
                     nextEmph = prefix != null && stack.startsWith("\tat " + prefix);
                 } else {
-                    System.out.println("2>" + stack);
                     String prefix = categoryPrefixes.floor(stack);
                     nextEmph = prefix != null && stack.startsWith(prefix);
                 }
