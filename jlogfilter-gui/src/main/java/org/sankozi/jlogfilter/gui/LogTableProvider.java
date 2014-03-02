@@ -6,7 +6,9 @@ import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -27,11 +29,13 @@ import javax.inject.Provider;
 import java.util.List;
 import java.util.ListIterator;
 
+import static org.sankozi.jlogfilter.util.ImmutableObservableString.immutableString;
+
 /**
  *
  */
 public class LogTableProvider implements Provider<TableView<LogEntry>> {
-    private final static SimpleStringProperty EMPTY_STRING_PROPERTY = new SimpleStringProperty("");
+    private final static ObservableStringValue EMPTY_STRING_PROPERTY = immutableString("");
 
     @Inject @Named("storedEntriesSize")
     IntegerProperty storedEntriesSize;
@@ -60,9 +64,9 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
                 } else {
                     int newline = message.indexOf('\n');
                     if(newline != -1) {
-                        return new SimpleStringProperty(message.substring(0, newline) + "[...]");
+                        return immutableString(message.substring(0, newline) + "[...]");
                     } else {
-                        return new SimpleStringProperty(message);
+                        return immutableString(message);
                     }
                 }
             }
@@ -72,7 +76,12 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     private final TableColumn<LogEntry, String> categoryColumn = new TableColumn<LogEntry, String>("Category"); {
         categoryColumn.setSortable(false);
         categoryColumn.setMinWidth(200);
-        categoryColumn.setCellValueFactory(new PropertyValueFactory<LogEntry, String>("category"));
+        categoryColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
+                return immutableString(cell.getValue().getCategory());
+            }
+        });
     }
 
     private final TableColumn<LogEntry, String> levelColumn = new TableColumn<LogEntry, String>("Level"); {
@@ -82,7 +91,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         levelColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
-                return new SimpleStringProperty(cell.getValue().getLevel().name());
+                return immutableString(cell.getValue().getLevel().name());
             }
         });
     }
@@ -97,7 +106,12 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
                 if(stacktrace.length == 0){
                     return EMPTY_STRING_PROPERTY;
                 } else {
-                    return new SimpleStringProperty(stacktrace[0] + " [...]");
+                    int newlineI = stacktrace[0].indexOf('\n');
+                    if(newlineI == -1){
+                        return immutableString(stacktrace[0] + " [...]");
+                    } else {
+                        return immutableString(stacktrace[0]);
+                    }
                 }
             }
         });
