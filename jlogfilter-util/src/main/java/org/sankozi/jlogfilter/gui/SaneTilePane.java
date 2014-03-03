@@ -1,6 +1,7 @@
 package org.sankozi.jlogfilter.gui;
 
 import com.google.common.collect.Lists;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 
@@ -25,6 +26,7 @@ public final class SaneTilePane extends GridPane{
         this.getChildren().add(node);
         GridPane.setColumnIndex(node, columnIndex);
         GridPane.setRowIndex(node, rowIndex);
+        GridPane.setValignment(node, VPos.BASELINE);
         columnIndex++;
         if(columnIndex >= columnsSize){
             columnIndex = 0;
