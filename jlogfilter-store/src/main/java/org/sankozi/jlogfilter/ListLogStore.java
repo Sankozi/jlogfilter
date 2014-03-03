@@ -78,7 +78,7 @@ public class ListLogStore implements LogStore, LogConsumer {
         List<LogEntry> drain = Lists.newArrayListWithCapacity(32);
         try {
             while(true){
-                LogEntry entry = entryQueue.take();
+                LogEntry entry = entryQueue.take();//blocking
                 drain.add(entry);
                 Thread.sleep(100);
                 entryQueue.drainTo(drain);
@@ -89,6 +89,8 @@ public class ListLogStore implements LogStore, LogConsumer {
                 }
                 drain.clear();
             }
+        } catch (InterruptedException ex) {
+            System.out.print("closing log store");
         } catch (Exception ex){
             System.err.println(ex.getMessage());
             ex.printStackTrace(System.err);
