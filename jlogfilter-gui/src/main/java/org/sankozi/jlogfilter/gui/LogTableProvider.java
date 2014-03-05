@@ -2,6 +2,9 @@ package org.sankozi.jlogfilter.gui;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.animation.TimelineBuilder;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -10,6 +13,7 @@ import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.SelectionMode;
@@ -20,12 +24,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
+import javafx.util.Duration;
 import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogEntry;
 import org.sankozi.jlogfilter.LogStore;
 
 import javax.annotation.Nullable;
 import javax.inject.Provider;
+import java.sql.Time;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -51,6 +57,10 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
 
     @Inject
     LogStore logStore;
+
+    volatile boolean logStoreEventsChanged = false;
+
+
 
     private final TableColumn<LogEntry, String> messageColumn = new TableColumn<>("Message"); {
         messageColumn.setSortable(false);
@@ -120,7 +130,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     @SuppressWarnings("unchecked")
     @Override
     public TableView<LogEntry> get() {
-        final TableView<LogEntry> ret = new TableView<LogEntry>();
+        final LogTable ret = new LogTable();
         ret.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
@@ -151,48 +161,30 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         logStore.addChangeListener(new Runnable() {
             @Override
             public void run() {
-                final List<LogEntry> entries = logStore.getTop(logEntriesTableSize.get());
-                final ListIterator<LogEntry> iNew = entries.listIterator();
+                logStoreEventsChanged = true;
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        storedEntriesSize.set(logStore.size());
-                        Runtime runtime = Runtime.getRuntime();
-                        freeMemory.set(runtime.freeMemory() / 1024);
-                        totalMemory.set(runtime.totalMemory() / 1024);
-                        LogEntry selectedItem = ret.getSelectionModel().getSelectedItem();
-                        int currentId = selectedItem == null ? -1 : selectedItem.getId();
-
-                        Integer newSelectedIndex = null;
-                        @Nullable Integer deleteFrom = null;
-                        ObservableList<LogEntry> currentItems = ret.getItems();
-                        for(ListIterator<LogEntry> li = currentItems.listIterator(); li.hasNext();){
-                            if(iNew.hasNext()){
-                                LogEntry current = li.next();
-                                LogEntry newEntry = iNew.next();
-                                if(current.getId() != newEntry.getId()){
-                                    li.set(newEntry);
-                                    if(newEntry.getId() == currentId){
-                                        newSelectedIndex = li.previousIndex();
-                                    }
-                                }
-                            } else {
-                                deleteFrom = li.nextIndex();
-                                break;
-                            }
-                        }
-                        if(iNew.hasNext()){
-                            currentItems.addAll(entries.subList(iNew.nextIndex(), entries.size()));
-                        } else if(deleteFrom != null){
-                            currentItems.remove(deleteFrom, currentItems.size());
-                        }
-                        if(newSelectedIndex != null){
-                            ret.getSelectionModel().select(newSelectedIndex);
-                        }
+                        logStoreEventsChanged = true;
                     }
                 });
             }
         });
+        Timeline refreshLogTableTimeline = TimelineBuilder.create()
+                .cycleCount(Timeline.INDEFINITE)
+                .keyFrames(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                        Runtime runtime = Runtime.getRuntime();
+                        freeMemory.set(runtime.freeMemory() / 1024);
+                        totalMemory.set(runtime.totalMemory() / 1024);
+                        final List<LogEntry> entries = logStore.getTop(logEntriesTableSize.get());
+                        storedEntriesSize.set(logStore.size());
+                        ret.refresh(entries);
+                    }
+                }))
+                .build();
+        refreshLogTableTimeline.play();
         return ret;
     }
 }
