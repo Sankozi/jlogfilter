@@ -29,6 +29,11 @@ public final class LogEntry {
         this.stacktrace = stacktrace;
     }
 
+    @Override
+    public String toString() {
+        return "LogEntry[" + id + "]";
+    }
+
     public int getId() {
         return id;
     }

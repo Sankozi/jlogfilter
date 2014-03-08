@@ -18,7 +18,7 @@ public class GuiModule extends AbstractModule{
     @Override
     protected void configure() {
         bind(Pane.class).annotatedWith(Names.named("main")).toProvider(MainPaneProvider.class);
-        bind(new TypeLiteral<TableView<LogEntry>>(){}).toProvider(LogTableProvider.class);
+        bind(LogTable.class).toProvider(LogTableProvider.class);
 
         bind(Path.class).annotatedWith(Names.named("configurationPath")).toInstance(Paths.get(System.getProperty("user.home"), ".jlogfilter", "configuration.json"));
 

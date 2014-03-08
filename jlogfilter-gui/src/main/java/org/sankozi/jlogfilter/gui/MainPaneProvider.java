@@ -28,7 +28,7 @@ import static org.sankozi.jlogfilter.gui.FontAwesomeIcons.*;
 public class MainPaneProvider implements Provider<Pane> {
 
     @Inject
-    TableView<LogEntry> logEntryTable;
+    LogTable logEntryTable;
 
     @Inject
     DetailPane logEntryDetail;
@@ -63,10 +63,12 @@ public class MainPaneProvider implements Provider<Pane> {
         logEntryTable.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<LogEntry>() {
             @Override
             public void onChanged(Change<? extends LogEntry> change) {
-                if(change.getList().isEmpty()){
-                    logEntryDetail.setLogEntry(null);
-                } else {
-                    logEntryDetail.setLogEntry(change.getList().get(0));
+                if(!logEntryTable.isRefreshing()){
+                    while(change.next()){
+                        if(change.wasAdded()){
+                            logEntryDetail.setLogEntry(change.getList().get(0));
+                        }
+                    }
                 }
             }
         });

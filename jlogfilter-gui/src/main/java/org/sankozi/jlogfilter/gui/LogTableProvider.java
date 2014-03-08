@@ -40,7 +40,7 @@ import static org.sankozi.jlogfilter.util.ImmutableObservableString.immutableStr
 /**
  *
  */
-public class LogTableProvider implements Provider<TableView<LogEntry>> {
+public class LogTableProvider implements Provider<LogTable> {
     private final static ObservableStringValue EMPTY_STRING_PROPERTY = immutableString("");
 
     @Inject @Named("storedEntriesSize")
@@ -59,8 +59,6 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
     LogStore logStore;
 
     volatile boolean logStoreEventsChanged = false;
-
-
 
     private final TableColumn<LogEntry, String> messageColumn = new TableColumn<>("Message"); {
         messageColumn.setSortable(false);
@@ -129,7 +127,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public TableView<LogEntry> get() {
+    public LogTable get() {
         final LogTable ret = new LogTable();
         ret.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
@@ -172,7 +170,7 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
         });
         Timeline refreshLogTableTimeline = TimelineBuilder.create()
                 .cycleCount(Timeline.INDEFINITE)
-                .keyFrames(new KeyFrame(Duration.seconds(1), new EventHandler<ActionEvent>() {
+                .keyFrames(new KeyFrame(Duration.millis(250), new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
                         Runtime runtime = Runtime.getRuntime();
@@ -180,7 +178,10 @@ public class LogTableProvider implements Provider<TableView<LogEntry>> {
                         totalMemory.set(runtime.totalMemory() / 1024);
                         final List<LogEntry> entries = logStore.getTop(logEntriesTableSize.get());
                         storedEntriesSize.set(logStore.size());
-                        ret.refresh(entries);
+                        if(logStoreEventsChanged){
+                            logStoreEventsChanged = false;
+                            ret.refresh(entries);
+                        }
                     }
                 }))
                 .build();

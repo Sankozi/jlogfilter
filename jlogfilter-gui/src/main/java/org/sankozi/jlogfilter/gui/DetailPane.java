@@ -33,6 +33,7 @@ public class DetailPane extends BorderPane {
         if(this.logEntry == entry){
             return;
         }
+        //System.out.println("setLogEntry " + entry);
         this.logEntry = entry;
         if(this.logEntry != null){
             contentBuilder.setLength(0);

@@ -1,10 +1,8 @@
 package org.sankozi.jlogfilter.gui;
 
-import javafx.beans.property.IntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 import org.sankozi.jlogfilter.LogEntry;
-import org.sankozi.jlogfilter.LogStore;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -15,9 +13,15 @@ import java.util.ListIterator;
  */
 public final class LogTable extends TableView<LogEntry> {
 
-    IntegerProperty logEntriesTableSize;
+    private volatile boolean refreshing = false;
+
+    public boolean isRefreshing(){
+        return refreshing;
+    }
 
     void refresh(List<LogEntry> entries){
+        refreshing = true;
+//        System.out.println("refresh!!");
         final ListIterator<LogEntry> iNew = entries.listIterator();
 
         LogEntry selectedItem = getSelectionModel().getSelectedItem();
@@ -49,9 +53,7 @@ public final class LogTable extends TableView<LogEntry> {
         if(newSelectedIndex != null){
             getSelectionModel().select(newSelectedIndex);
         }
-    }
-
-    public void setLogEntriesTableSize(IntegerProperty logEntriesTableSize) {
-        this.logEntriesTableSize = logEntriesTableSize;
+//        System.out.println("refresh end");
+        refreshing = false;
     }
 }
