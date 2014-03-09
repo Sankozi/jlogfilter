@@ -3,18 +3,23 @@ package org.sankozi.jlogfilter.gui;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.MapProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
+import org.sankozi.jlogfilter.Level;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -22,14 +27,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  */
 public class ConfigurationStore {
+    private final static GsonBuilder GSON_BUILDER = new GsonBuilder().setPrettyPrinting();
+
     private volatile Configuration configuration;
 
     //injected in setters
     ListProperty<String> emphasisedStacktracePackages;
+    MapProperty<String, Level> storedMinimalLevel;
     IntegerProperty logEntriesTableSize;
 
     @Inject @Named("configurationPath")
     Path configurationFilePath;
+
+    private static Gson getGson() {
+        return GSON_BUILDER.create();
+    }
 
     public Configuration getConfiguration() {
         if(configuration != null){
@@ -38,7 +50,7 @@ public class ConfigurationStore {
         Configuration ret;
         try {
             if(configurationFilePath.toFile().isFile()){
-                ret = new Gson().fromJson(Files.toString(configurationFilePath.toFile(), Charsets.UTF_8), Configuration.class);
+                ret = getGson().fromJson(Files.toString(configurationFilePath.toFile(), Charsets.UTF_8), Configuration.class);
             } else {
                 File confFile = configurationFilePath.toFile();
                 if(!confFile.getParentFile().isDirectory() && !confFile.getParentFile().mkdirs()){
@@ -60,23 +72,43 @@ public class ConfigurationStore {
 
     public void saveConfiguration(Configuration configuration){
         try {
-            Files.write( new Gson().toJson(configuration), configurationFilePath.toFile(), Charsets.UTF_8);
+            Files.write(getGson().toJson(configuration), configurationFilePath.toFile(), Charsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         this.configuration = null;
     }
 
+    private abstract class ConfigurationChangeListener<T> implements ChangeListener<T> {
+        @Override
+        public void changed(ObservableValue<? extends T> observableValue, T t, T t2) {
+            Configuration conf = getConfiguration();
+            changeConfiguration(conf, t2);
+            saveConfiguration(conf);
+        }
+        protected abstract void changeConfiguration(Configuration conf, T newValue);
+    }
+
+    @Inject
+    public void setStoredMinimalLevel(@Named("storedMinimalLevel") MapProperty<String, Level> storedMinimalLevel){
+        this.storedMinimalLevel = storedMinimalLevel;
+        storedMinimalLevel.set(FXCollections.observableMap(getConfiguration().storedMinimalLevel));
+        storedMinimalLevel.addListener(new ConfigurationChangeListener<ObservableMap<String, Level>>() {
+            @Override
+            protected void changeConfiguration(Configuration conf, ObservableMap<String, Level> newValue) {
+                conf.storedMinimalLevel = newValue;
+            }
+        });
+    }
+
     @Inject
     public void setLogEntriesTableSize(@Named("logEntriesTableSize") IntegerProperty logEntriesTableSize) {
         this.logEntriesTableSize = logEntriesTableSize;
         logEntriesTableSize.set(getConfiguration().logEntriesTableSize);
-        logEntriesTableSize.addListener(new ChangeListener<Number>() {
+        logEntriesTableSize.addListener(new ConfigurationChangeListener<Number>() {
             @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number number2) {
-                Configuration conf = getConfiguration();
-                conf.logEntriesTableSize = number2.intValue();
-                saveConfiguration(conf);
+            protected void changeConfiguration(Configuration conf, Number newValue) {
+                conf.logEntriesTableSize = newValue.intValue();
             }
         });
     }
@@ -86,12 +118,10 @@ public class ConfigurationStore {
         this.emphasisedStacktracePackages = emphasisedStacktracePackages;
         System.out.println("emphasised categories " + getConfiguration().emphasisedStacktraces);
         emphasisedStacktracePackages.set(FXCollections.observableArrayList(getConfiguration().emphasisedStacktraces));
-        emphasisedStacktracePackages.addListener(new ChangeListener<ObservableList<String>>() {
+        emphasisedStacktracePackages.addListener(new ConfigurationChangeListener<ObservableList<String>>() {
             @Override
-            public void changed(ObservableValue<? extends ObservableList<String>> observableValue, ObservableList<String> strings, ObservableList<String> strings2) {
-                Configuration conf = getConfiguration();
-                conf.emphasisedStacktraces = strings2;
-                saveConfiguration(conf);
+            protected void changeConfiguration(Configuration conf, ObservableList<String> newValue) {
+                conf.emphasisedStacktraces = newValue;
             }
         });
     }

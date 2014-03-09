@@ -6,6 +6,7 @@ import com.google.inject.name.Names;
 import javafx.beans.property.*;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
+import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogEntry;
 
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ public class GuiModule extends AbstractModule{
         bind(IntegerProperty.class).annotatedWith(Names.named("logEntriesTableSize")).toInstance(new SimpleIntegerProperty(500));
 
         bind(new TypeLiteral<ListProperty<String>>(){}).annotatedWith(Names.named("emphasisedStacktraces")).toInstance(new SimpleListProperty<String>());
-
+        bind(new TypeLiteral<MapProperty<String, Level>>(){}).annotatedWith(Names.named("storedMinimalLevel")).toInstance(new SimpleMapProperty<String, Level>());
         bind(ConfigurationStore.class).asEagerSingleton();
     }
 }
