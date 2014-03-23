@@ -23,6 +23,8 @@ public class ListLogStore implements LogStore, LogConsumer {
 
     private final BlockingQueue<LogEntry> entryQueue = new ArrayBlockingQueue<>(1024);
 
+    private final Statistics statistics = new Statistics();
+
     private volatile Thread logStoreThread = null;
 
     private volatile NavigableMap<String, Level> storedMinimalLevel = Maps.newTreeMap();
@@ -117,7 +119,8 @@ public class ListLogStore implements LogStore, LogConsumer {
                         filteredDrain.add(le);
                     }
                 }
-                System.out.println("adding " + filteredDrain.size() + " log entries, discarded " + (drain.size() - filteredDrain.size()) + " entries");
+                //System.out.println("adding " + filteredDrain.size() + " log entries, discarded " + (drain.size() - filteredDrain.size()) + " entries");
+                statistics.registerEntries(filteredDrain);
                 synchronized (this) {
                     entries.addAll(filteredDrain);
                     fireEntriesChangeListeners();
