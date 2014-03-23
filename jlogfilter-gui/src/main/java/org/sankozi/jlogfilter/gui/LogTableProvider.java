@@ -150,6 +150,8 @@ public class LogTableProvider implements Provider<LogTable> {
                         if(!empty) {
                             this.getStyleClass().removeAll(Level.LEVEL_NAMES);
                             this.getStyleClass().add(entry.getLevel().name());
+                        } else {
+                            this.getStyleClass().removeAll(Level.LEVEL_NAMES);
                         }
                     }
                 };
