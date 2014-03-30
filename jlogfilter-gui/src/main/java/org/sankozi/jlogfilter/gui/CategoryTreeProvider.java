@@ -26,6 +26,7 @@ public class CategoryTreeProvider implements Provider<Node> {
     private final ArrayList<NavigableMap<String, TreeItem<String>>> createdTreeItems
             = Lists.<NavigableMap<String, TreeItem<String>>>newArrayList(
                     Maps.<String, TreeItem<String>>newTreeMap(),
+                    Maps.<String, TreeItem<String>>newTreeMap(),
                     Maps.<String, TreeItem<String>>newTreeMap());
 
     private TreeItem<String> root;
@@ -45,6 +46,9 @@ public class CategoryTreeProvider implements Provider<Node> {
                 final String name = index > 0 ? category.substring(newStart, index) : category.substring(newStart);
                 prefix += name;
                 newStart = index + 1;
+                if(level >= createdTreeItems.size()){
+                    createdTreeItems.add(Maps.<String, TreeItem<String>>newTreeMap());
+                }
                 if (!createdTreeItems.get(level).containsKey(prefix)) {
                     final int levelToAdd = level;
                     final String parentToAdd = parentName;
@@ -76,6 +80,7 @@ public class CategoryTreeProvider implements Provider<Node> {
         root = new TreeItem<String>("");
         root.setExpanded(true);
         ret.setRoot(root);
+        ret.setShowRoot(false);
 
         logStore.addChangeListener(new Runnable() {
             @Override
