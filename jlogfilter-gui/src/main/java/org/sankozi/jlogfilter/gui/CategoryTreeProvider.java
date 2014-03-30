@@ -36,17 +36,35 @@ public class CategoryTreeProvider implements Provider<Node> {
         NavigableSet<String> categories = new TreeSet<>(logStore.getStatistics().getCategories());
         for(String category : categories){
             int level = 0;
-            int index = category.indexOf('.');
-            final String name = index > 0 ? category.substring(0, index) : category;
-            if(!createdTreeItems.get(level).containsKey(name)){
-                TreeItem<String> item = new TreeItem<String>(name);
-                createdTreeItems.get(level).put(name, item);
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        root.getChildren().add(createdTreeItems.get(0).get(name));
-                    }
-                });
+            int index = 0;
+            int newStart = 0;
+            String parentName = null;
+            String prefix = "";
+            while(index >= 0 && newStart < category.length()) {
+                index = category.indexOf('.', newStart);
+                final String name = index > 0 ? category.substring(newStart, index) : category.substring(newStart);
+                prefix += name;
+                newStart = index + 1;
+                if (!createdTreeItems.get(level).containsKey(prefix)) {
+                    final int levelToAdd = level;
+                    final String parentToAdd = parentName;
+                    final String key = prefix;
+                    TreeItem<String> item = new TreeItem<String>(name);
+                    item.setExpanded(true);
+                    createdTreeItems.get(levelToAdd).put(prefix, item);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            (levelToAdd == 0
+                                    ? root
+                                    : createdTreeItems.get(levelToAdd - 1).get(parentToAdd))
+                                        .getChildren().add(createdTreeItems.get(levelToAdd).get(key));
+                        }
+                    });
+                }
+                parentName = prefix;
+                prefix += ".";
+                level++;
             }
         }
         categoriesCount = categories.size();
@@ -58,7 +76,6 @@ public class CategoryTreeProvider implements Provider<Node> {
         root = new TreeItem<String>("");
         root.setExpanded(true);
         ret.setRoot(root);
-        ret.setPrefHeight(100f);
 
         logStore.addChangeListener(new Runnable() {
             @Override
