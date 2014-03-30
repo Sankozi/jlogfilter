@@ -29,4 +29,6 @@ public interface LogStore {
      * @return number of stored events
      */
     int size();
+
+    Statistics getStatistics();
 }

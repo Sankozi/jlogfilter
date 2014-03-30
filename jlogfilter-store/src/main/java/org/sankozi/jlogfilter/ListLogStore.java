@@ -160,6 +160,11 @@ public class ListLogStore implements LogStore, LogConsumer {
     }
 
     @Override
+    public Statistics getStatistics() {
+        return statistics;
+    }
+
+    @Override
     public synchronized List<LogEntry> getTop(int n) {
         if(entries.size() < n) {
             return ImmutableList.copyOf(entries.subList(0, entries.size()));

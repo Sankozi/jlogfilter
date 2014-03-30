@@ -4,10 +4,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import javafx.beans.property.*;
-import javafx.scene.control.TableView;
+import javafx.scene.Node;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
 import org.sankozi.jlogfilter.Level;
-import org.sankozi.jlogfilter.LogEntry;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +20,7 @@ public class GuiModule extends AbstractModule{
     protected void configure() {
         bind(Pane.class).annotatedWith(Names.named("main")).toProvider(MainPaneProvider.class);
         bind(LogTable.class).toProvider(LogTableProvider.class);
+        bind(Node.class).annotatedWith(Names.named("categoryTree")).toProvider(CategoryTreeProvider.class);
 
         bind(Path.class).annotatedWith(Names.named("configurationPath")).toInstance(Paths.get(System.getProperty("user.home"), ".jlogfilter", "configuration.json"));
 

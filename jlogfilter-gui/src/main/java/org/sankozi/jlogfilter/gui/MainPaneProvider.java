@@ -54,6 +54,9 @@ public class MainPaneProvider implements Provider<Pane> {
     @Inject @Named("emphasisedStacktraces")
     ListProperty<String> emphasisedStacktracePackages;
 
+    @Inject @Named("categoryTree")
+    Node categoryTree;
+
     @Override
     public Pane get() {
         BorderPane ret = new BorderPane();
@@ -98,7 +101,8 @@ public class MainPaneProvider implements Provider<Pane> {
                 HBoxBuilder.create().alignment(Pos.BASELINE_LEFT).children(
                         new Label("Max rows in table:"),
                         NumberField.bidirectionalBinding(logEntriesTableSize)
-                ).build());
+                ).build(),
+                categoryTree);
         hiddenConfigPane.setVisible(false);
         hiddenConfigPane.setManaged(false);
 
