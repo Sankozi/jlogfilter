@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Log that stores new entries in a list
@@ -21,6 +23,7 @@ public class ListLogStore implements LogStore, LogConsumer {
     private final List<Runnable> listeners = Lists.newArrayListWithCapacity(3);
     private final List<LogEntry> entries = Lists.newArrayListWithCapacity(1024);
 
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final BlockingQueue<LogEntry> entryQueue = new ArrayBlockingQueue<>(1024);
 
     private final Statistics statistics = new Statistics();
@@ -53,29 +56,47 @@ public class ListLogStore implements LogStore, LogConsumer {
     }
 
     @Override
-    public void add(LogEntry newEntry) {
-        if(logStoreThread == null){
-            synchronized(this){
-                if(logStoreThread == null){
-                    logStoreThread = initLogStoreThread();
-                }
-            }
-        }
-        entryQueue.add(newEntry);
+    public void addAll(Collection<LogEntry> entries) {
+        checkInitThread();
+        this.entryQueue.addAll(entries);
     }
 
     @Override
-    public synchronized void deleteIds(Collection<Integer> ids) {
-        Set<Integer> idsToDelete = Sets.newHashSet(ids);
-        Iterator<LogEntry> i = entries.iterator();
-        while(!idsToDelete.isEmpty()){
-            LogEntry le = i.next();
-            if(idsToDelete.contains(le.getId())){
-                i.remove();
-                idsToDelete.remove(le.getId());
+    public void add(LogEntry newEntry) {
+        checkInitThread();
+        entryQueue.add(newEntry);
+    }
+
+    private void checkInitThread() {
+        if(logStoreThread == null){
+            readWriteLock.readLock().lock();
+            try {
+                if(logStoreThread == null){
+                    logStoreThread = initLogStoreThread();
+                }
+            } finally {
+                readWriteLock.readLock().unlock();
             }
         }
-        fireEntriesChangeListeners();
+    }
+
+    @Override
+    public void deleteIds(Collection<Integer> ids) {
+        readWriteLock.writeLock().lock();
+        try {
+            Set<Integer> idsToDelete = Sets.newHashSet(ids);
+            Iterator<LogEntry> i = entries.iterator();
+            while (!idsToDelete.isEmpty() && i.hasNext()) {
+                LogEntry le = i.next();
+                if (idsToDelete.contains(le.getId())) {
+                    i.remove();
+                    idsToDelete.remove(le.getId());
+                }
+            }
+            fireEntriesChangeListeners();
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
     @Override
@@ -121,9 +142,12 @@ public class ListLogStore implements LogStore, LogConsumer {
                 }
                 //System.out.println("adding " + filteredDrain.size() + " log entries, discarded " + (drain.size() - filteredDrain.size()) + " entries");
                 statistics.registerEntries(filteredDrain);
-                synchronized (this) {
+                readWriteLock.writeLock().lock();
+                try {
                     entries.addAll(filteredDrain);
                     fireEntriesChangeListeners();
+                } finally {
+                    readWriteLock.writeLock().unlock();
                 }
                 drain.clear();
                 filteredDrain.clear();
@@ -137,25 +161,24 @@ public class ListLogStore implements LogStore, LogConsumer {
     }
 
     @Override
-    public synchronized void addAll(Collection<LogEntry> entries) {
-        this.entries.addAll(entries);
-        fireEntriesChangeListeners();
-    }
-
-    @Override
     public synchronized void addChangeListener(Runnable listener) {
         listeners.add(listener);
     }
 
-    private synchronized void fireEntriesChangeListeners(){
-        for(Runnable runnable: listeners){
+    private void fireEntriesChangeListeners(){
+        for (Runnable runnable : listeners) {
             runnable.run();
         }
     }
 
     @Override
-    public synchronized void deleteAll() {
-        entries.clear();
+    public void deleteAll() {
+        readWriteLock.writeLock().lock();
+        try {
+            entries.clear();
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
         fireEntriesChangeListeners();
     }
 
@@ -165,11 +188,16 @@ public class ListLogStore implements LogStore, LogConsumer {
     }
 
     @Override
-    public synchronized List<LogEntry> getTop(int n) {
-        if(entries.size() < n) {
-            return ImmutableList.copyOf(entries.subList(0, entries.size()));
-        } else {
-            return ImmutableList.copyOf(entries.subList(entries.size() - n, entries.size()));
+    public List<LogEntry> getTop(int n) {
+        readWriteLock.readLock().lock();
+        try {
+            if (entries.size() < n) {
+                return ImmutableList.copyOf(entries.subList(0, entries.size()));
+            } else {
+                return ImmutableList.copyOf(entries.subList(entries.size() - n, entries.size()));
+            }
+        } finally {
+            readWriteLock.readLock().unlock();
         }
     }
 }

@@ -34,6 +34,8 @@ import javax.inject.Provider;
 import java.sql.Time;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.sankozi.jlogfilter.util.ImmutableObservableString.immutableString;
 
