@@ -6,27 +6,49 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *  Class containing information about registered logging entries
  */
 public final class Statistics {
-    ConcurrentMap<String, CategoryStatistics> categoryStatistics = Maps.newConcurrentMap();
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final ConcurrentMap<String, CategoryStatistics> categoryStatistics = Maps.newConcurrentMap();
 
     long counter = 0;
 
     void registerEntries(Collection<LogEntry> entries){
-        for(LogEntry le: entries){
-            CategoryStatistics cat = categoryStatistics.get(le.getCategory());
-            if(cat == null){
-                cat = new CategoryStatistics();
-                categoryStatistics.put(le.getCategory(), cat);
+        readWriteLock.writeLock().lock();
+        try {
+            for (LogEntry le : entries) {
+                CategoryStatistics cat = categoryStatistics.get(le.getCategory());
+                if (cat == null) {
+                    cat = new CategoryStatistics();
+                    categoryStatistics.put(le.getCategory(), cat);
+                }
+                cat.registerEntry(le);
+                counter++;
+                if (counter % 512 == 0) {
+                    System.out.append("Statistics:\n").println(this.toString());
+                }
             }
-            cat.registerEntry(le);
-            counter ++;
-            if(counter % 512 == 0){
-                System.out.append("Statistics:\n").println(this.toString());
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
+    public String getCategoryStatisticDescription(String categoryPrefix){
+        readWriteLock.readLock().lock();
+        try {
+            CategoryStatistics stat = categoryStatistics.get(categoryPrefix);
+            if(stat != null){
+                return stat.toString();
+            } else {
+                return "";
             }
+        } finally {
+            readWriteLock.readLock().unlock();
         }
     }
 
@@ -36,7 +58,12 @@ public final class Statistics {
     }
 
     public Set<String> getCategories(){
-        return Collections.unmodifiableSet(categoryStatistics.keySet());
+        readWriteLock.readLock().lock();
+        try {
+            return Collections.unmodifiableSet(categoryStatistics.keySet());
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
     }
 }
 
@@ -52,7 +79,10 @@ final class CategoryStatistics {
     public String toString(){
         StringBuilder ret = new StringBuilder();
         for(Level level: Level.values()){
-            ret.append(level.name()).append(":").append(levelStatistics[level.ordinal()]).append(' ');
+            long levelStatistic = levelStatistics[level.ordinal()];
+            if(levelStatistic > 0) {
+                ret.append(level.name()).append(":").append(levelStatistic).append(' ');
+            }
         }
         ret.append('\n');
         return ret.toString();

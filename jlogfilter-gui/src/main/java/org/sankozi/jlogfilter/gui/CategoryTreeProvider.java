@@ -4,10 +4,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.sankozi.jlogfilter.LogStore;
+import org.sankozi.jlogfilter.Statistics;
 
 import javax.inject.Provider;
 import java.util.*;
@@ -34,7 +37,8 @@ public class CategoryTreeProvider implements Provider<Node> {
     private int categoriesCount = 0;
 
     private void onChange(){
-        NavigableSet<String> categories = new TreeSet<>(logStore.getStatistics().getCategories());
+        Statistics statistics = logStore.getStatistics();
+        NavigableSet<String> categories = new TreeSet<>(statistics.getCategories());
         for(String category : categories){
             int level = 0;
             int index = 0;
@@ -53,7 +57,7 @@ public class CategoryTreeProvider implements Provider<Node> {
                     final int levelToAdd = level;
                     final String parentToAdd = parentName;
                     final String key = prefix;
-                    TreeItem<String> item = new TreeItem<String>(name);
+                    TreeItem<String> item = new CategoryTreeItem(name);
                     item.setExpanded(true);
                     createdTreeItems.get(levelToAdd).put(prefix, item);
                     Platform.runLater(new Runnable() {
@@ -77,10 +81,23 @@ public class CategoryTreeProvider implements Provider<Node> {
     @Override
     public Node get() {
         TreeView<String> ret = new TreeView<>();
-        root = new TreeItem<String>("");
+        root = new TreeItem<>("");
         root.setExpanded(true);
         ret.setRoot(root);
         ret.setShowRoot(false);
+        ret.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
+            @Override
+            public void changed(ObservableValue<? extends TreeItem<String>> observableValue,
+                                TreeItem<String> itemBefore,
+                                TreeItem<String> itemAfter) {
+                if(itemAfter instanceof CategoryTreeItem){
+                    CategoryTreeItem categoryItem = (CategoryTreeItem) itemAfter;
+                    String categoryPrefix = categoryItem.getCategoryPrefix();
+                    Statistics stats = logStore.getStatistics();
+                    itemAfter.setValue(categoryItem.getCategoryPart() + " " + stats.getCategoryStatisticDescription(categoryPrefix));
+                }
+            }
+        });
 
         logStore.addChangeListener(new Runnable() {
             @Override
