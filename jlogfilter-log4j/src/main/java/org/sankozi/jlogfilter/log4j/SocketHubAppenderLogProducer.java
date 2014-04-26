@@ -81,12 +81,13 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                     .message( name + " has been closed")
                     .stacktrace(EMPTY_STRING_ARR)
                     .create());
-        } catch (Exception e) {
+        } catch (Exception ex) {
             consumer.add(lef.level(Level.WARN)
                     .category("jlogfilter.log4j")
-                    .message(name + " has encountered error: " + e.getMessage())
+                    .message(name + " has encountered error: " + ex.getMessage())
                     .stacktrace(EMPTY_STRING_ARR)
                     .create());
+            ex.printStackTrace(System.err);
         }
     }
 
