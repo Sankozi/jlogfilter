@@ -1,6 +1,7 @@
 package org.sankozi.jlogfilter.gui;
 
 import com.google.common.collect.Sets;
+import com.google.common.html.HtmlEscapers;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import javafx.beans.property.ListProperty;
@@ -50,7 +51,7 @@ public class DetailPane extends BorderPane {
                     .append("<pre>").append(logEntry.getCategory()).append("</pre>")
                     .append("<p>Message:</p>")
                     .append("<pre width='100%'>")
-                    .append(logEntry.getMessage())
+                    .append(HtmlEscapers.htmlEscaper().escape(logEntry.getMessage()))
                     .append("</pre>") ;
             if(logEntry.getStacktrace().length > 0){
                 contentBuilder.append("<p>Stacktrace:</p>").append("<pre>");
