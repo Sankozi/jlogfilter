@@ -49,17 +49,23 @@ public class ConfigurationStore {
         }
         Configuration ret;
         try {
+            System.out.println("Trying to load configuration from path : '" + configurationFilePath + "' ...");
             if(configurationFilePath.toFile().isFile()){
                 ret = getGson().fromJson(Files.toString(configurationFilePath.toFile(), Charsets.UTF_8), Configuration.class);
+                System.out.println("...configuration loaded successfully.");
             } else {
                 File confFile = configurationFilePath.toFile();
-                if(!confFile.getParentFile().isDirectory() && !confFile.getParentFile().mkdirs()){
-                    throw new RuntimeException("cannot create directory " + confFile.getParentFile().getAbsoluteFile());
+                if(!confFile.getParentFile().isDirectory()){
+                    System.out.print("...directory not found, creating...");
+                    if(!confFile.getParentFile().mkdirs()) {
+                        throw new RuntimeException("cannot create directory " + confFile.getParentFile().getAbsoluteFile());
+                    }
                 }
                 if(!confFile.createNewFile()){
                     throw new RuntimeException("cannot create file " + confFile);
                 }
                 saveConfiguration(new Configuration());
+                System.out.print("...created file with default configuration.");
                 ret = getConfiguration();
             }
 
