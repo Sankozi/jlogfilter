@@ -3,12 +3,15 @@ package org.sankozi.jlogfilter.gui;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import javafx.application.Platform;
+import javafx.beans.property.MapProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogStore;
 import org.sankozi.jlogfilter.Statistics;
 
@@ -21,6 +24,9 @@ import java.util.*;
 public class CategoryTreeProvider implements Provider<Node> {
     @Inject
     LogStore logStore;
+
+    @Inject @Named("storedMinimalLevel")
+    MapProperty<String, Level> storedMinimalLevel;
 
     /**
      * List containing all created items for certain levels (0 - {'org', 'com', 'java' etc}, and so on)
@@ -39,6 +45,7 @@ public class CategoryTreeProvider implements Provider<Node> {
     private void onChange(){
         Statistics statistics = logStore.getStatistics();
         NavigableSet<String> categories = new TreeSet<>(statistics.getCategories());
+        categories.addAll(storedMinimalLevel.keySet());
         for(String category : categories){
             int level = 0;
             int index = 0;
@@ -57,7 +64,7 @@ public class CategoryTreeProvider implements Provider<Node> {
                     final int levelToAdd = level;
                     final String parentToAdd = parentName;
                     final String key = prefix;
-                    TreeItem<String> item = new CategoryTreeItem(name);
+                    CategoryTreeItem item = new CategoryTreeItem(name);
                     item.setExpanded(true);
                     createdTreeItems.get(levelToAdd).put(prefix, item);
                     Platform.runLater(new Runnable() {
