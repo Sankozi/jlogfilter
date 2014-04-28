@@ -185,7 +185,11 @@ public class CategoryTreeProvider implements Provider<Node> {
                     String levelName = (((MenuItem)actionEvent.getSource()).getText());
                     CategoryTreeItem item = (CategoryTreeItem) getTreeItem();
                     Level level = Level.valueOf(levelName);
-                    storedMinimalLevel.put(item.getCategoryPrefix(), level == Level.TRACE ? null : level );
+                    if(level != Level.TRACE) {
+                        storedMinimalLevel.put(item.getCategoryPrefix(), level);
+                    } else {
+                        storedMinimalLevel.remove(item.getCategoryPrefix());
+                    }
                     System.out.println("put '" + item.getCategoryPrefix() + "' " + levelName);
                 }
             };
