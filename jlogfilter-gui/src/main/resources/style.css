@@ -28,6 +28,10 @@
 
 .fontAwesome {
     -fx-font-family: FontAwesome;
+}
+
+.fontAwesome-button {
+    -fx-font-family: FontAwesome;
     -fx-font-size: 14pt;
     -fx-padding: 5px;
 }

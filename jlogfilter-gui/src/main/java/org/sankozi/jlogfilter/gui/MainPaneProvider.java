@@ -83,7 +83,7 @@ public class MainPaneProvider implements Provider<Pane> {
         HBox topButtonPane = new HBox();
 
         Label detailLabel = new Label(Character.toString(LIST));  //list
-        detailLabel.getStyleClass().add("fontAwesome");
+        detailLabel.getStyleClass().add("fontAwesome-button");
 
         ToggleGroup detailGroup = new ToggleGroup();
         ToggleButton noDetailButton = getToggleButton(configuration, CIRCLE, splitPane, detailGroup, DetailPaneLocation.NONE);
@@ -130,7 +130,7 @@ public class MainPaneProvider implements Provider<Pane> {
 
     private Button clearButton() {
         Button clearButton = new Button(Character.toString(TRASH_O)); //trash icon
-        clearButton.getStyleClass().add("fontAwesome");
+        clearButton.getStyleClass().add("fontAwesome-button");
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -152,7 +152,7 @@ public class MainPaneProvider implements Provider<Pane> {
                 expandButton.setText(Character.toString(newVisible ? MINUS_SQUARE : PLUS_SQUARE));
             }
         });
-        expandButton.getStyleClass().add("fontAwesome");
+        expandButton.getStyleClass().add("fontAwesome-button");
         return expandButton;
     }
 
@@ -171,7 +171,7 @@ public class MainPaneProvider implements Provider<Pane> {
     private ToggleButton getToggleButton(Configuration conf, char icon, final SplitPane splitPane, ToggleGroup detailGroup, final DetailPaneLocation dpl) {
                                          //final Orientation orientation, final Node... components) {
         ToggleButton button = new ToggleButton(Character.toString(icon));
-        button.getStyleClass().add("fontAwesome");
+        button.getStyleClass().add("fontAwesome-button");
         button.setToggleGroup(detailGroup);
 
         final Orientation orientation;

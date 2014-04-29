@@ -81,11 +81,12 @@ public class CategoryTreeProvider implements Provider<Node> {
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
+                            CategoryTreeItem toAdd = createdTreeItems.get(levelToAdd).get(key);
                             (levelToAdd == 0
                                     ? root
                                     : createdTreeItems.get(levelToAdd - 1).get(parentToAdd))
-                                        .getChildren().add(createdTreeItems.get(levelToAdd).get(key));
-
+                                        .getChildren().add(toAdd);
+                            updateItem(toAdd);
                         }
                     });
                 }
@@ -138,6 +139,7 @@ public class CategoryTreeProvider implements Provider<Node> {
             @Override
             public void onChanged(Change<? extends String, ? extends Level> change) {
                 String key = change.getKey();
+                System.out.println("updating " + key);
                 if(key != null){
                     //depth == number of dots in key
                     updateItem(createdTreeItems.get(countChar(key, '.')).get(key));
@@ -158,10 +160,29 @@ public class CategoryTreeProvider implements Provider<Node> {
         return ret;
     }
 
-    private class CategoryCell extends TextFieldTreeCell<String> implements EventHandler<MouseEvent> {
-        ContextMenu menu;
+    private class CategoryCell extends TreeCell<String> implements EventHandler<MouseEvent> {
+        private ContextMenu menu;
+        private CategoryStatsNode node;
+
         {
             this.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
+        }
+
+        @Override
+        protected void updateItem(String value, boolean empty) {
+            super.updateItem(value, empty);
+            if(empty){
+                this.setText(null);
+                this.setGraphic(null);
+            } else {
+                if(node == null){
+                    node = new CategoryStatsNode();
+                }
+                node.updateItem((CategoryTreeItem) this.getTreeItem());
+                this.setGraphic(node);
+            }
+//            this.setText(value);
+            System.out.println("updating to " + value + " " + this.getTreeItem());
         }
 
         @Override

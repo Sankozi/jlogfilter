@@ -15,5 +15,10 @@ public final class FontAwesomeIcons {
 
     public final static char LIST = '\uf03a';
 
+    public final static char BUG = '\uf188';
+    public final static char INFO = '\uf05a';
+    public final static char WARNING = '\uf071';
+    public final static char ERROR = '\uf06a';
+
     private FontAwesomeIcons(){}
 }
