@@ -52,7 +52,7 @@ public class CategoryTreeProvider implements Provider<Node> {
     private int categoriesCount = 0;
 
     private void onChange(){
-        System.out.println("onChange");
+//        System.out.println("onChange");
         Statistics statistics = logStore.getStatistics();
         NavigableSet<String> categories = new TreeSet<>(statistics.getCategories());
         categories.addAll(storedMinimalLevel.keySet());
@@ -99,7 +99,7 @@ public class CategoryTreeProvider implements Provider<Node> {
 
     public void updateItem(CategoryTreeItem categoryItem){
         String categoryPrefix = categoryItem.getCategoryPrefix();
-        System.out.println("updating " + categoryPrefix);
+//        System.out.println("updating " + categoryPrefix);
         Statistics stats = logStore.getStatistics();
         categoryItem.setMinimalLevel(storedMinimalLevel.get(categoryPrefix));
         categoryItem.setValue(categoryItem.getCategoryDescription() + " " + stats.getCategoryStatisticDescription(categoryPrefix));
