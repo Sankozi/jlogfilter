@@ -181,8 +181,7 @@ public class CategoryTreeProvider implements Provider<Node> {
                 node.updateItem((CategoryTreeItem) this.getTreeItem());
                 this.setGraphic(node);
             }
-//            this.setText(value);
-            System.out.println("updating to " + value + " " + this.getTreeItem());
+//            System.out.println("updating to " + value + " " + this.getTreeItem());
         }
 
         @Override

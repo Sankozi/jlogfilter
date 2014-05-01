@@ -20,5 +20,7 @@ public final class FontAwesomeIcons {
     public final static char WARNING = '\uf071';
     public final static char ERROR = '\uf06a';
 
+    public final static char FIRE = '\uf06d';
+
     private FontAwesomeIcons(){}
 }

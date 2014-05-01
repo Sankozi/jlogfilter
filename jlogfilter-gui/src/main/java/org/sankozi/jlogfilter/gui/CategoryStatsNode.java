@@ -43,6 +43,9 @@ public class CategoryStatsNode extends HBox {
                         minimalLevel.setText(FontAwesomeIcons.ERROR + "");
                         minimalLevel.setTextFill(Color.DARKRED);
                         break;
+                    case FATAL:
+                        minimalLevel.setText(FontAwesomeIcons.FIRE + "");
+                        minimalLevel.setTextFill(Color.DARKRED);
                 }
             }
             partLabel.setText(treeItem.getCategoryPart());
