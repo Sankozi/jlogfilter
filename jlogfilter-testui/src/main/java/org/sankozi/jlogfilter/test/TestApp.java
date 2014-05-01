@@ -47,7 +47,8 @@ public class TestApp extends Application{
         categoryChoice.setValue("com.impl");
 
         levelChoice = new ComboBox<>();
-        levelChoice.getItems().addAll("TRACE","DEBUG","INFO","WARN","ERROR");
+        levelChoice.setEditable(true);
+        levelChoice.getItems().addAll("TRACE","DEBUG","INFO","WARN","ERROR","FATAL");
         levelChoice.setValue("DEBUG");
 
         messageField = new TextField("test message");

@@ -58,10 +58,17 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                     ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()))){
                     while(true){
                         LoggingEvent le = (LoggingEvent) ois.readObject();
-                        Level level = Level.valueOf(le.getLevel().toString());
+                        String message = Objects.toString(le.getMessage());
+                        Level level;
+                        try {
+                            level = Level.valueOf(le.getLevel().toString());
+                        } catch (IllegalArgumentException ex) {
+                            level = Level.INFO;
+                            message = le.getLevel().toString() + " : " + message;
+                        }
                         LogEntry newEntry = lef.level(level)
                            .category(le.getLoggerName())
-                           .message(Objects.toString(le.getMessage()))
+                           .message(message)
                            .stacktrace(le.getThrowableStrRep() == null ? EMPTY_STRING_ARR : le.getThrowableStrRep())
                            .create();
                         consumer.add(newEntry);

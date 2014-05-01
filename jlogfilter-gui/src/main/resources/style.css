@@ -14,8 +14,14 @@
 }
 
 .ERROR {
+     -fx-background-color:lightcoral;
+     -fx-control-inner-background: lightcoral;
+}
+
+.FATAL {
     -fx-background-color:lightcoral;
     -fx-control-inner-background: lightcoral;
+    -fx-font-weight: bold;
 }
 
 .table-row-cell:odd {

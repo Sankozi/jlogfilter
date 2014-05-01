@@ -12,7 +12,9 @@ public enum Level {
     DEBUG,
     INFO,
     WARN,
-    ERROR;
+    ERROR,
+    FATAL
+    ;
 
     public static final Set<String> LEVEL_NAMES;
     static {
