@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.*;
  */
 public final class SocketHubAppenderLogProducer implements LogProducer {
     private final static Joiner STACKTRACE_JOINER = Joiner.on(" \n").skipNulls();
-    private final static  String[] EMPTY_STRING_ARR = new String[]{};
+    private final static String[] EMPTY_STRING_ARR = new String[]{};
 
     private final String host;
     private final int port;

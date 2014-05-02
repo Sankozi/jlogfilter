@@ -1,9 +1,11 @@
 package org.sankozi.jlogfilter;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -52,6 +54,31 @@ public final class Statistics {
         }
     }
 
+    public String getSubcategoriesStatisticDescription(String categoryPrefix){
+        readWriteLock.readLock().lock();
+        try {
+            NavigableSet<String> sortedSet = Sets.newTreeSet(categoryStatistics.keySet());
+            String ceiling = sortedSet.ceiling(categoryPrefix);
+            if(ceiling != null && ceiling.startsWith(categoryPrefix)){
+                CategoryStatistics ret = new CategoryStatistics();
+                for(String subcategory: sortedSet.tailSet(ceiling)){
+                    if(subcategory.startsWith(categoryPrefix)){
+                        if(!subcategory.equals(categoryPrefix)){
+                            ret.add(categoryStatistics.get(subcategory));
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                return ret.toString();
+            } else {
+                return "";
+            }
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+    }
+
     @Override
     public String toString() {
         return categoryStatistics.toString();
@@ -73,6 +100,12 @@ final class CategoryStatistics {
 
     void registerEntry(LogEntry le){
         levelStatistics[le.getLevel().ordinal()]++;
+    }
+
+    void add(CategoryStatistics from){
+        for(Level level: Level.values()){
+            levelStatistics[level.ordinal()] += from.levelStatistics[level.ordinal()];
+        }
     }
 
     @Override

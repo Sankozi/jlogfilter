@@ -9,12 +9,10 @@ import javafx.beans.property.MapProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
@@ -24,8 +22,6 @@ import org.sankozi.jlogfilter.Statistics;
 
 import javax.inject.Provider;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -36,6 +32,9 @@ public class CategoryTreeProvider implements Provider<Node> {
 
     @Inject @Named("storedMinimalLevel")
     MapProperty<String, Level> storedMinimalLevel;
+
+    @Inject
+    Provider<CategoryStatisticsPopup> categoryStatisticsToolip;
 
     /**
      * List containing all created items for certain levels (0 - {'org', 'com', 'java' etc}, and so on)
@@ -100,7 +99,6 @@ public class CategoryTreeProvider implements Provider<Node> {
 
     public void updateItem(CategoryTreeItem categoryItem){
         String categoryPrefix = categoryItem.getCategoryPrefix();
-//        System.out.println("updating " + categoryPrefix);
         Statistics stats = logStore.getStatistics();
         categoryItem.setMinimalLevel(storedMinimalLevel.get(categoryPrefix));
         categoryItem.setValue(categoryItem.getCategoryDescription() + " " + stats.getCategoryStatisticDescription(categoryPrefix));
@@ -125,6 +123,10 @@ public class CategoryTreeProvider implements Provider<Node> {
         ret.setCellFactory(new Callback<TreeView<String>, TreeCell<String>>() {
             @Override
             public TreeCell<String> call(TreeView<String> stringTreeView) {
+//                CategoryCell cell = new CategoryCell();
+//                CategoryStatisticsPopup tooltip = categoryStatisticsToolip.get();
+//                cell.setTooltip(tooltip);
+//                tooltip.setCell(cell);//no other safe way to pass information to tooltip
                 return new CategoryCell();
             }
         });
@@ -139,7 +141,7 @@ public class CategoryTreeProvider implements Provider<Node> {
             @Override
             public void onChanged(Change<? extends String, ? extends Level> change) {
                 String key = change.getKey();
-                System.out.println("updating " + key);
+//                System.out.println("updating " + key);
                 if(key != null){
                     //depth == number of dots in key
                     updateItem(createdTreeItems.get(countChar(key, '.')).get(key));
@@ -162,7 +164,8 @@ public class CategoryTreeProvider implements Provider<Node> {
 
     private class CategoryCell extends TreeCell<String> implements EventHandler<MouseEvent> {
         private ContextMenu menu;
-        private CategoryStatsNode node;
+        private CategoryTreeNode node;
+        private CategoryStatisticsPopup tooltip;
 
         {
             this.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
@@ -171,12 +174,19 @@ public class CategoryTreeProvider implements Provider<Node> {
         @Override
         protected void updateItem(String value, boolean empty) {
             super.updateItem(value, empty);
+//            System.out.println("update item = " + value);
             if(empty){
                 this.setText(null);
                 this.setGraphic(null);
+                this.setTooltip(null);
             } else {
+                if(tooltip == null){
+                    tooltip = categoryStatisticsToolip.get();
+                    tooltip.setCell(this);
+                }
+                setTooltip(tooltip);
                 if(node == null){
-                    node = new CategoryStatsNode();
+                    node = new CategoryTreeNode();
                 }
                 node.updateItem((CategoryTreeItem) this.getTreeItem());
                 this.setGraphic(node);
@@ -210,7 +220,7 @@ public class CategoryTreeProvider implements Provider<Node> {
                     } else {
                         storedMinimalLevel.remove(item.getCategoryPrefix());
                     }
-                    System.out.println("put '" + item.getCategoryPrefix() + "' " + levelName);
+//                    System.out.println("put '" + item.getCategoryPrefix() + "' " + levelName);
                 }
             };
             for(Level level: Level.values()){

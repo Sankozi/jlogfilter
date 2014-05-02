@@ -9,7 +9,7 @@ import org.sankozi.jlogfilter.Level;
 /**
  *
  */
-public class CategoryStatsNode extends HBox {
+public class CategoryTreeNode extends HBox {
 
     private final Label minimalLevel = LabelBuilder.create().styleClass("fontAwesome").text("").build();
     private final Label partLabel = new Label("");

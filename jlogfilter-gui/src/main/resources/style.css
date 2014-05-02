@@ -32,6 +32,10 @@
     -fx-background-color:derive(-fx-control-inner-background, -40%);
 }
 
+.biggerTooltip {
+   -fx-font-size: 120%;
+}
+
 .fontAwesome {
     -fx-font-family: FontAwesome;
 }
