@@ -110,8 +110,11 @@ public class MainPaneProvider implements Provider<Pane> {
                     hiddenConfigPane
                 );
 
-        topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(), getButton(), storedSizeLabel(), memoryLabel());
-        topButtonPane.setAlignment(Pos.BASELINE_LEFT);
+        topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(), getButton(),
+                HBoxBuilder.create().alignment(Pos.CENTER_LEFT)
+                        .fillHeight(true)
+                        .children(storedSizeLabel(), memoryLabel()).build());
+        topButtonPane.setAlignment(Pos.TOP_LEFT);
 
         ret.setCenter(splitPane);
         ret.setTop(configPane);
