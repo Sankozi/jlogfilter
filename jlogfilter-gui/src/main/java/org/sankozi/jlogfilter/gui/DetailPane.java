@@ -47,8 +47,12 @@ public class DetailPane extends BorderPane {
                                  + "</style>"
                                  + "<head>"
                                  + "</head><body>")
+                    .append("<table><tr><td>")
                     .append("<p>Category:</p>")
                     .append("<pre>").append(logEntry.getCategory()).append("</pre>")
+                    .append("</td><td><p>Level:</p>")
+                    .append("<pre>").append(logEntry.getLevel().name()).append("</pre>")
+                    .append("</td></tr></table>")
                     .append("<p>Message:</p>")
                     .append("<pre width='100%'>")
                     .append(HtmlEscapers.htmlEscaper().escape(logEntry.getMessage()))
