@@ -7,9 +7,12 @@ import com.google.inject.name.Named;
 import javafx.beans.property.ListProperty;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
+import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogEntry;
+import org.sankozi.jlogfilter.LogEntryFilter;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 import java.util.NavigableSet;
 
 /**
@@ -20,6 +23,9 @@ public class DetailPane extends BorderPane {
     private StringBuilder contentBuilder = new StringBuilder(50);
 
     private WebView detailArea = new WebView();
+
+    @Inject
+    LogEntryFilter logEntryFilter;
 
     @Inject
     @Named("emphasisedStacktraces")
@@ -43,6 +49,7 @@ public class DetailPane extends BorderPane {
                                  + "<style type=\"text/css\">"
                                  + "p { margin-top:4px; margin-bottom:2px; font-weight:bold; }\n"
                                  + "pre { margin:0px; white-space:pre-wrap; }\n"
+                                 + "td { padding-right: 10px; }"
                                  + "pre.emph {font-weight:bold; border:1px solid red; background-color:#FFFFCC;}\n"
                                  + "</style>"
                                  + "<head>"
@@ -51,8 +58,14 @@ public class DetailPane extends BorderPane {
                     .append("<p>Category:</p>")
                     .append("<pre>").append(logEntry.getCategory()).append("</pre>")
                     .append("</td><td><p>Level:</p>")
-                    .append("<pre>").append(logEntry.getLevel().name()).append("</pre>")
-                    .append("</td></tr></table>")
+                    .append("<pre>").append(logEntry.getLevel().name()).append("</pre>");
+            Map.Entry<String, Level> logFilterEntry = logEntryFilter.getRuleForEntry(logEntry);
+            if(logFilterEntry != null) {
+                contentBuilder.append("</td><td><p>Filter rule:</p>")
+                        .append("<pre>").append(logFilterEntry.getKey()).append(":").append(logFilterEntry.getValue())
+                        .append("</pre>");
+            }
+            contentBuilder.append("</td></tr></table>")
                     .append("<p>Message:</p>")
                     .append("<pre width='100%'>")
                     .append(HtmlEscapers.htmlEscaper().escape(logEntry.getMessage()))
@@ -88,5 +101,4 @@ public class DetailPane extends BorderPane {
             detailArea.getEngine().loadContent("<html></html>");
         }
     }
-
 }
