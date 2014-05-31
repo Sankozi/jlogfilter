@@ -30,25 +30,7 @@ public class ListLogStore implements LogStore, LogConsumer {
 
     private volatile Thread logStoreThread = null;
 
-    private volatile NavigableMap<String, Level> storedMinimalLevel = Maps.newTreeMap();
-
-    @Inject
-    public void setStoredMinimalLevel(@Named("storedMinimalLevel") MapProperty<String, Level> storedMinimalLevel){
-        System.out.println("storedMinimalLevel " + storedMinimalLevel.get());
-        NavigableMap<String, Level> map = Maps.newTreeMap();
-        map.putAll(storedMinimalLevel.get());
-        this.storedMinimalLevel = map;
-
-        storedMinimalLevel.addListener(new ChangeListener<ObservableMap<String, Level>>() {
-            @Override
-            public void changed(ObservableValue<? extends ObservableMap<String, Level>> val, ObservableMap<String, Level> map1, ObservableMap<String, Level> map2) {
-                System.out.println("updating storedMinimalLevel " + map2);
-                NavigableMap<String, Level> map = Maps.newTreeMap();
-                map.putAll(map2);
-                ListLogStore.this.storedMinimalLevel = map;
-            }
-        });
-    }
+    private @Inject LogEntryFilter logEntryFilter;
 
     @Override
     public int size() {
@@ -117,15 +99,6 @@ public class ListLogStore implements LogStore, LogConsumer {
         return ret;
     }
 
-    private boolean entryStored(LogEntry le){
-        Map.Entry<String, Level> entry = storedMinimalLevel.floorEntry(le.getCategory());
-        if(entry != null && le.getCategory().startsWith(entry.getKey())){
-            return le.getLevel().ordinal() >= entry.getValue().ordinal();
-        } else {
-            return true;
-        }
-    }
-
     private void logStoreThread() {
         List<LogEntry> drain = Lists.newArrayListWithCapacity(32);
         List<LogEntry> filteredDrain = Lists.newArrayListWithCapacity(32);
@@ -136,7 +109,7 @@ public class ListLogStore implements LogStore, LogConsumer {
                 Thread.sleep(100);
                 entryQueue.drainTo(drain);
                 for(LogEntry le : drain){
-                    if(entryStored(le)){
+                    if(logEntryFilter.apply(le)){
                         filteredDrain.add(le);
                     }
                 }
