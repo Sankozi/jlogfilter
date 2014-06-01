@@ -106,7 +106,7 @@ public class LogTableProvider implements Provider<LogTable> {
         });
     }
 
-    private final TableColumn<LogEntry, String> stacktraceColumn = new TableColumn<LogEntry, String>("Stacktrace"); {
+    private final TableColumn<LogEntry, String> stacktraceColumn = new TableColumn<LogEntry, String>("Stack trace"); {
         stacktraceColumn.setSortable(false);
         stacktraceColumn.setMinWidth(100);
         stacktraceColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
@@ -139,26 +139,7 @@ public class LogTableProvider implements Provider<LogTable> {
                 }
             }
         });
-//        ret.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        ret.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         ret.getColumns().addAll(levelColumn, messageColumn, categoryColumn, stacktraceColumn);
-        ret.setRowFactory(new Callback<TableView<LogEntry>, TableRow<LogEntry>>() {
-            @Override
-            public TableRow<LogEntry> call(TableView<LogEntry> table) {
-                return new TableRow<LogEntry>(){
-                    @Override
-                    protected void updateItem(LogEntry entry, boolean empty) {
-                        super.updateItem(entry, empty);
-                        if(!empty) {
-                            this.getStyleClass().removeAll(Level.LEVEL_NAMES);
-                            this.getStyleClass().add(entry.getLevel().name());
-                        } else {
-                            this.getStyleClass().removeAll(Level.LEVEL_NAMES);
-                        }
-                    }
-                };
-            }
-        });
         ret.setMaxHeight(ret.getMinHeight());
         logStore.addChangeListener(new Runnable() {
             @Override

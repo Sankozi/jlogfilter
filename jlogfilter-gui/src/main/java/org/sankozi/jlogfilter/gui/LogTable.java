@@ -1,7 +1,10 @@
 package org.sankozi.jlogfilter.gui;
 
 import javafx.collections.ObservableList;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.util.Callback;
+import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogEntry;
 
 import javax.annotation.Nullable;
@@ -17,6 +20,31 @@ public final class LogTable extends TableView<LogEntry> {
 
     public boolean isRefreshing(){
         return refreshing;
+    }
+
+    {
+        setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        setRowFactory(new Callback<TableView<LogEntry>, TableRow<LogEntry>>() {
+            @Override
+            public TableRow<LogEntry> call(TableView<LogEntry> table) {
+                return new TableRow<LogEntry>(){
+                    @Override
+                    protected void updateItem(LogEntry entry, boolean empty) {
+                        super.updateItem(entry, empty);
+                        if(!empty) {
+                            this.getStyleClass().removeAll(Level.LEVEL_NAMES);
+                            this.getStyleClass().add(entry.getLevel().name());
+                        } else {
+                            this.getStyleClass().removeAll(Level.LEVEL_NAMES);
+                        }
+                    }
+                };
+            }
+        });
+    }
+
+    void scrollTo(String text){
+
     }
 
     void refresh(List<LogEntry> entries){
