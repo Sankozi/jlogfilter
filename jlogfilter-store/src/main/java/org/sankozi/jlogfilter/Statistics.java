@@ -31,9 +31,6 @@ public final class Statistics {
                 }
                 cat.registerEntry(le);
                 counter++;
-                if (counter % 512 == 0) {
-                    System.out.append("Statistics:\n").println(this.toString());
-                }
             }
         } finally {
             readWriteLock.writeLock().unlock();
