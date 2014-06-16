@@ -7,6 +7,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -53,6 +54,9 @@ public class MainPaneProvider implements Provider<Pane> {
 
     @Inject @Named("emphasisedStacktraces")
     ListProperty<String> emphasisedStacktracePackages;
+
+    @Inject @Named("emphasisedEntryText")
+    StringProperty emphasisedEntryText;
 
     @Inject @Named("categoryTree")
     Node categoryTree;
@@ -113,12 +117,18 @@ public class MainPaneProvider implements Provider<Pane> {
         topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(), getButton(),
                 HBoxBuilder.create().alignment(Pos.CENTER_LEFT)
                         .fillHeight(true)
-                        .children(storedSizeLabel(), memoryLabel()).build());
+                        .children(emphasizedPatternField(), storedSizeLabel(), memoryLabel()).build());
         topButtonPane.setAlignment(Pos.TOP_LEFT);
 
         ret.setCenter(splitPane);
         ret.setTop(configPane);
 
+        return ret;
+    }
+
+    private TextField emphasizedPatternField(){
+        TextField ret = new TextField();
+        ret.textProperty().bindBidirectional(emphasisedEntryText);
         return ret;
     }
 

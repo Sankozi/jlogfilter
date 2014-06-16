@@ -9,6 +9,8 @@ import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -56,6 +58,9 @@ public class LogTableProvider implements Provider<LogTable> {
 
     @Inject @Named("logEntriesTableSize")
     IntegerProperty logEntriesTableSize;
+
+    @Inject @Named("emphasisedEntryText")
+    StringProperty emphasisedEntryText;
 
     @Inject
     LogStore logStore;
@@ -171,6 +176,13 @@ public class LogTableProvider implements Provider<LogTable> {
                 }))
                 .build();
         refreshLogTableTimeline.play();
+        emphasisedEntryText.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
+                ret.emphasizePattern(newValue);
+            }
+        });
+        ret.emphasizePattern(emphasisedEntryText.get());
         return ret;
     }
 }

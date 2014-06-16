@@ -29,6 +29,7 @@ public class GuiModule extends AbstractModule{
         bind(LongProperty.class).annotatedWith(Names.named("totalMemoryKiB")).toInstance(new SimpleLongProperty(0));
         bind(LongProperty.class).annotatedWith(Names.named("freeMemoryKiB")).toInstance(new SimpleLongProperty(0));
         bind(IntegerProperty.class).annotatedWith(Names.named("logEntriesTableSize")).toInstance(new SimpleIntegerProperty(500));
+        bind(StringProperty.class).annotatedWith(Names.named("emphasisedEntryText")).toInstance(new SimpleStringProperty(""));
 
         bind(new TypeLiteral<ListProperty<String>>(){}).annotatedWith(Names.named("emphasisedStacktraces")).toInstance(new SimpleListProperty<String>());
         bind(new TypeLiteral<MapProperty<String, Level>>(){}).annotatedWith(Names.named("storedMinimalLevel")).toInstance(new SimpleMapProperty<String, Level>());

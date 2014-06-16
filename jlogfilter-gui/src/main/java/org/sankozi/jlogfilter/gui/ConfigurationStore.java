@@ -6,9 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.MapProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -35,6 +33,7 @@ public class ConfigurationStore {
     ListProperty<String> emphasisedStacktracePackages;
     MapProperty<String, Level> storedMinimalLevel;
     IntegerProperty logEntriesTableSize;
+    Property<String> emphasisedEntryText;
 
     @Inject @Named("configurationPath")
     Path configurationFilePath;
@@ -128,6 +127,19 @@ public class ConfigurationStore {
             @Override
             protected void changeConfiguration(Configuration conf, ObservableList<String> newValue) {
                 conf.emphasisedStacktraces = newValue;
+            }
+        });
+    }
+
+    @Inject
+    public void setEmphasisedEntryText(@Named("emphasisedEntryText") StringProperty emphasisedEntryText) {
+        this.emphasisedEntryText = emphasisedEntryText;
+        System.out.println("emphasised categories " + getConfiguration().emphasisedEntryText);
+        emphasisedEntryText.setValue(getConfiguration().emphasisedEntryText);
+        emphasisedEntryText.addListener(new ConfigurationChangeListener<String>() {
+            @Override
+            protected void changeConfiguration(Configuration conf, String newValue) {
+                conf.emphasisedEntryText = newValue;
             }
         });
     }
