@@ -40,6 +40,7 @@ public class CategoryTreeProvider implements Provider<Node> {
      * List containing all created items for certain levels (0 - {'org', 'com', 'java' etc}, and so on)
      * list is updated only in logStore listener thread
      */
+    @SuppressWarnings("unchecked")
     private final ArrayList<NavigableMap<String, CategoryTreeItem>> createdTreeItems
             = Lists.<NavigableMap<String, CategoryTreeItem>>newArrayList(
                     Maps.<String, CategoryTreeItem>newTreeMap(),
