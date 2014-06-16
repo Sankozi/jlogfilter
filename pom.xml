@@ -7,6 +7,7 @@
     <properties>
         <!-- Unique entry point for version number management -->
         <global.version>0.6.1-SNAPSHOT</global.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <groupId>org.sankozi</groupId>
@@ -74,6 +75,7 @@
                     <configuration>
                         <source>1.7</source>
                         <target>1.7</target>
+                        <compilerArgument>-Xlint:unchecked</compilerArgument>
                     </configuration>
                 </plugin>
                 <plugin>
