@@ -24,7 +24,7 @@
     -fx-font-weight: bold;
 }
 
-.table-row-cell:odd:not(.EMPH) {
+.table-row-cell:odd {
     -fx-background-color:derive(-fx-control-inner-background, -10%);
 }
 
