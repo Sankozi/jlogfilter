@@ -26,22 +26,32 @@
 
 .table-row-cell:odd {
     -fx-background-color:derive(-fx-control-inner-background, -10%);
+    -fx-text-alignment: center;
+    -fx-alignment: center;
 }
 
 .table-row-cell:focused {
     -fx-background-color:derive(-fx-control-inner-background, -40%);
+    -fx-text-alignment: center;
+    -fx-alignment: center;
 }
 
 .EMPH:odd {
-    -fx-background-color: linear-gradient(from 0% 0% to 50% 0%, reflect, lightcoral 50%, red 100%), derive(-fx-control-inner-background, -10%);
+    -fx-background-color: royalblue, derive(-fx-control-inner-background, -10%);
     /*-fx-control-inner-background: derive(-fx-control-inner-background, 0%);*/
-    -fx-background-insets: 0, 2;
+    -fx-background-insets: 0, 0 0 0 3;
 }
 
 .EMPH:even {
-    -fx-background-color: linear-gradient(from 0% 0% to 50% 0%, reflect, lightcoral 50%, red 100%), derive(-fx-control-inner-background, 0%);
+    -fx-background-color: royalblue, derive(-fx-control-inner-background, 0%);
     /*-fx-control-inner-background: derive(-fx-control-inner-background, 0%);*/
-    -fx-background-insets: 0, 2;
+    -fx-background-insets: 0, 0 0 0 3;
+}
+
+.EMPH:focused {
+    -fx-background-color: royalblue, derive(-fx-control-inner-background, -40%);
+    /*-fx-control-inner-background: derive(-fx-control-inner-background, 0%);*/
+    -fx-background-insets: 0, 0 0 0 3;
 }
 
 .biggerTooltip {
