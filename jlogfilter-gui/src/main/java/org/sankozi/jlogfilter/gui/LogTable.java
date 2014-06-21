@@ -36,15 +36,12 @@ public final class LogTable extends TableView<LogEntry> {
                     protected void updateItem(LogEntry entry, boolean empty) {
                         super.updateItem(entry, empty);
                         if(!empty) {
-
                             this.getStyleClass().removeAll(Level.LEVEL_NAMES);
                             this.getStyleClass().add(entry.getLevel().name());
                             if(emphasizedPattern != null && emphasizedPattern.matcher(entry.getMessage()).matches()){
                                 this.getStyleClass().add("EMPH");
-                            } else if (emphasizedPattern == null ) {
-                                System.out.println("no pattern");
                             } else {
-                                System.out.println(entry.getMessage() + " doesn't match " + emphasizedPattern.pattern());
+                                this.getStyleClass().remove("EMPH");
                             }
                         } else {
                             this.getStyleClass().removeAll(Level.LEVEL_NAMES);
