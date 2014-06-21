@@ -18,10 +18,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -47,6 +45,25 @@ import static org.sankozi.jlogfilter.util.ImmutableObservableString.immutableStr
 public class LogTableProvider implements Provider<LogTable> {
     private final static ObservableStringValue EMPTY_STRING_PROPERTY = immutableString("");
 
+    private final static Callback<TableColumn<LogEntry, String>,TableCell<LogEntry, String>> CENTER_ALIGNED_CELL_FACTORY
+            = new Callback<TableColumn<LogEntry, String>,TableCell<LogEntry, String>>() {
+        @Override
+        public TableCell<LogEntry, String> call(TableColumn<LogEntry, String> tableColumn) {
+            TableCell<LogEntry, String> ret = new TableCell<LogEntry, String>(){
+                @Override
+                protected void updateItem(String value, boolean empty) {
+                    if(empty){
+                        this.setText("");
+                    } else {
+                        this.setText(value);
+                    }
+                }
+            };
+            ret.setAlignment(Pos.CENTER);
+            return ret;
+        }
+    };
+
     @Inject @Named("storedEntriesSize")
     IntegerProperty storedEntriesSize;
 
@@ -70,6 +87,7 @@ public class LogTableProvider implements Provider<LogTable> {
     private final TableColumn<LogEntry, String> messageColumn = new TableColumn<>("Message"); {
         messageColumn.setSortable(false);
         messageColumn.setMinWidth(200);
+        messageColumn.setCellFactory(CENTER_ALIGNED_CELL_FACTORY);
         messageColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
@@ -91,6 +109,7 @@ public class LogTableProvider implements Provider<LogTable> {
     private final TableColumn<LogEntry, String> categoryColumn = new TableColumn<LogEntry, String>("Category"); {
         categoryColumn.setSortable(false);
         categoryColumn.setMinWidth(200);
+        categoryColumn.setCellFactory(CENTER_ALIGNED_CELL_FACTORY);
         categoryColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
@@ -101,8 +120,9 @@ public class LogTableProvider implements Provider<LogTable> {
 
     private final TableColumn<LogEntry, String> levelColumn = new TableColumn<LogEntry, String>("Level"); {
         levelColumn.setSortable(false);
-        levelColumn.setMinWidth(50);
-        levelColumn.setMaxWidth(50);
+        levelColumn.setMinWidth(60);
+        levelColumn.setMaxWidth(60);
+        levelColumn.setCellFactory(CENTER_ALIGNED_CELL_FACTORY);
         levelColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
@@ -114,6 +134,7 @@ public class LogTableProvider implements Provider<LogTable> {
     private final TableColumn<LogEntry, String> stacktraceColumn = new TableColumn<LogEntry, String>("Stack trace"); {
         stacktraceColumn.setSortable(false);
         stacktraceColumn.setMinWidth(100);
+        stacktraceColumn.setCellFactory(CENTER_ALIGNED_CELL_FACTORY);
         stacktraceColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<LogEntry, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<LogEntry, String> cell) {
