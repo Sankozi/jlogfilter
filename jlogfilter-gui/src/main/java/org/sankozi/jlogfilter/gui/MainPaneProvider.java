@@ -17,6 +17,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogEntry;
 import org.sankozi.jlogfilter.LogStore;
 import org.sankozi.jlogfilter.util.NumberField;
@@ -114,7 +115,7 @@ public class MainPaneProvider implements Provider<Pane> {
                     hiddenConfigPane
                 );
 
-        topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(), getButton(),
+        topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(), clearLowerThanErrorButton(), gcButton(),
                 HBoxBuilder.create().alignment(Pos.CENTER_LEFT)
                         .fillHeight(true)
                         .children(emphasizedPatternField(), storedSizeLabel(), memoryLabel()).build());
@@ -132,7 +133,7 @@ public class MainPaneProvider implements Provider<Pane> {
         return ret;
     }
 
-    private Button getButton() {
+    private Button gcButton() {
         return ButtonBuilder.create().text("GC").onAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
@@ -142,7 +143,7 @@ public class MainPaneProvider implements Provider<Pane> {
     }
 
     private Button clearButton() {
-        Button clearButton = new Button(Character.toString(TRASH_O)); //trash icon
+        Button clearButton = new Button(Character.toString(TRASH_O));
         clearButton.getStyleClass().add("fontAwesome-button");
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -151,6 +152,19 @@ public class MainPaneProvider implements Provider<Pane> {
             }
         });
         clearButton.setTooltip(new Tooltip("Delete all stored log entries"));
+        return clearButton;
+    }
+
+    private Button clearLowerThanErrorButton(){
+        Button clearButton = new Button(new String(new char[]{TRASH_O, '<', ERROR}));
+        clearButton.getStyleClass().add("fontAwesome-button");
+        clearButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                logStore.deleteLowerThan(Level.ERROR);
+            }
+        });
+        clearButton.setTooltip(new Tooltip("Delete all stored log entries with level lower than Error"));
         return clearButton;
     }
 

@@ -12,6 +12,12 @@ public interface LogStore {
 
     void deleteAll();
 
+    /**
+     * Deletes all entries with level equal or lower than selected
+     * @param level
+     */
+    void deleteLowerThan(Level level);
+
     void deleteIds(Collection<Integer> ids);
     void delete(Collection<LogEntry> le);
 

@@ -46,7 +46,7 @@ public class LogEntryFilter implements Predicate<LogEntry> {
 
     private boolean entryStored(LogEntry le){
         Map.Entry<String, Level> entry = getRuleForEntry(le);
-        return entry == null || le.getLevel().ordinal() >= entry.getValue().ordinal();
+        return entry == null || !le.getLevel().isLower(entry.getValue()); //don't store with lower than minimal level
     }
 
     public Map.Entry<String, Level> getRuleForEntry(LogEntry le) {

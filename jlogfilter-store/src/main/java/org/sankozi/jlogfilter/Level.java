@@ -24,4 +24,9 @@ public enum Level {
         }
         LEVEL_NAMES = set.build();
     }
+
+    public boolean isLower(Level other){
+        return ordinal() < other.ordinal();
+    }
+
 }

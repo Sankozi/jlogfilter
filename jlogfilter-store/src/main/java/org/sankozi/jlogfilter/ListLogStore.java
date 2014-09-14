@@ -7,6 +7,7 @@ import javafx.beans.property.MapProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableMap;
+import sun.rmi.runtime.Log;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -149,6 +150,22 @@ public class ListLogStore implements LogStore, LogConsumer {
         readWriteLock.writeLock().lock();
         try {
             entries.clear();
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+        fireEntriesChangeListeners();
+    }
+
+    @Override
+    public void deleteLowerThan(Level level) {
+        readWriteLock.writeLock().lock();
+        try {
+            for(ListIterator<LogEntry> it = entries.listIterator(entries.size()); it.hasPrevious();){
+                LogEntry entry = it.previous();
+                if(entry.getLevel().isLower(level)){
+                    it.remove();
+                }
+            }
         } finally {
             readWriteLock.writeLock().unlock();
         }
