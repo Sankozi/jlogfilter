@@ -115,7 +115,11 @@ public class MainPaneProvider implements Provider<Pane> {
                     hiddenConfigPane
                 );
 
-        topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(), clearLowerThanErrorButton(), gcButton(),
+        topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(),
+                clearLowerThanButton(Level.ERROR, FontAwesomeIcons.ERROR),
+                clearLowerThanButton(Level.WARN, FontAwesomeIcons.WARNING),
+                clearLowerThanButton(Level.INFO, FontAwesomeIcons.INFO),
+                clearLowerThanButton(Level.DEBUG, FontAwesomeIcons.BUG),gcButton(),
                 HBoxBuilder.create().alignment(Pos.CENTER_LEFT)
                         .fillHeight(true)
                         .children(emphasizedPatternField(), storedSizeLabel(), memoryLabel()).build());
@@ -155,16 +159,16 @@ public class MainPaneProvider implements Provider<Pane> {
         return clearButton;
     }
 
-    private Button clearLowerThanErrorButton(){
-        Button clearButton = new Button(new String(new char[]{TRASH_O, '<', ERROR}));
+    private Button clearLowerThanButton(final Level level, char icon){
+        Button clearButton = new Button(new String(new char[]{TRASH_O, '<', icon}));
         clearButton.getStyleClass().add("fontAwesome-button");
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                logStore.deleteLowerThan(Level.ERROR);
+                logStore.deleteLowerThan(level);
             }
         });
-        clearButton.setTooltip(new Tooltip("Delete all stored log entries with level lower than Error"));
+        clearButton.setTooltip(new Tooltip("Delete all stored log entries with level lower than " + level));
         return clearButton;
     }
 
