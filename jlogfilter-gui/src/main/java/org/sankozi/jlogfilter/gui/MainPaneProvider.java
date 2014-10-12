@@ -8,6 +8,8 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -21,6 +23,9 @@ import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogEntry;
 import org.sankozi.jlogfilter.LogStore;
 import org.sankozi.jlogfilter.util.NumberField;
+
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import static org.sankozi.jlogfilter.gui.FontAwesomeIcons.*;
 
@@ -132,7 +137,18 @@ public class MainPaneProvider implements Provider<Pane> {
     }
 
     private TextField emphasizedPatternField(){
-        TextField ret = new TextField();
+        final TextField ret = new TextField();
+        ret.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> val, String oldValue, String newValue) {
+                try {
+                    Pattern.compile(newValue);
+                    ret.getStyleClass().remove("invalidField");
+                } catch (PatternSyntaxException pse) {
+                    ret.getStyleClass().add("invalidField");
+                }
+            }
+        });
         ret.textProperty().bindBidirectional(emphasisedEntryText);
         return ret;
     }

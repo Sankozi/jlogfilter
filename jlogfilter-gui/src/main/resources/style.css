@@ -54,6 +54,11 @@
     -fx-background-insets: 0, 0 0 0 3;
 }
 
+.invalidField {
+    -fx-background-color:lightcoral;
+    -fx-control-inner-background: lightcoral;
+}
+
 .biggerTooltip {
    -fx-font-size: 120%;
 }

@@ -134,7 +134,7 @@ public class ConfigurationStore {
     @Inject
     public void setEmphasisedEntryText(@Named("emphasisedEntryText") StringProperty emphasisedEntryText) {
         this.emphasisedEntryText = emphasisedEntryText;
-        System.out.println("emphasised categories " + getConfiguration().emphasisedEntryText);
+        System.out.println("emphasised entry pattern " + getConfiguration().emphasisedEntryText);
         emphasisedEntryText.setValue(getConfiguration().emphasisedEntryText);
         emphasisedEntryText.addListener(new ConfigurationChangeListener<String>() {
             @Override

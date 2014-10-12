@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  *
@@ -55,7 +56,11 @@ public final class LogTable extends TableView<LogEntry> {
 
     void emphasizePattern(String pattern){
         System.out.println("new pattern : " + pattern);
-        this.emphasizedPattern = Strings.nullToEmpty(pattern).trim().isEmpty() ? null : Pattern.compile(pattern);
+        try {
+            this.emphasizedPattern = Strings.nullToEmpty(pattern).trim().isEmpty() ? null : Pattern.compile(pattern);
+        } catch (PatternSyntaxException pse) {
+            this.emphasizedPattern = null;
+        }
     }
 
     void scrollTo(String text){
