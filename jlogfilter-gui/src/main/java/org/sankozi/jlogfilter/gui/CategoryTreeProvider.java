@@ -9,6 +9,7 @@ import javafx.beans.property.MapProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -82,10 +83,22 @@ public class CategoryTreeProvider implements Provider<Node> {
                         @Override
                         public void run() {
                             CategoryTreeItem toAdd = createdTreeItems.get(levelToAdd).get(key);
-                            (levelToAdd == 0
+                            ObservableList<TreeItem<String>> children = (levelToAdd == 0
                                     ? root
                                     : createdTreeItems.get(levelToAdd - 1).get(parentToAdd))
-                                        .getChildren().add(toAdd);
+                                    .getChildren();
+                            int insertAt = children.size();
+                            for(ListIterator<TreeItem<String>> it = children.listIterator(); it.hasNext();){
+                                TreeItem<String> next = it.next();
+//                                System.out.println("comparing '" + next.getValue() + "' '" + toAdd.getCategoryPart() + "'");
+                                if(next.getValue().compareTo(toAdd.getCategoryPart()) > 0){
+                                    insertAt = it.previousIndex();
+//                                    System.out.println("insertAt = " + insertAt);
+                                    break;
+                                }
+                            }
+//                            System.out.println("inserting " + toAdd.getCategoryPart() + " at " + insertAt);
+                            children.add(insertAt, toAdd);
                             updateItem(toAdd);
                         }
                     });
@@ -124,10 +137,6 @@ public class CategoryTreeProvider implements Provider<Node> {
         ret.setCellFactory(new Callback<TreeView<String>, TreeCell<String>>() {
             @Override
             public TreeCell<String> call(TreeView<String> stringTreeView) {
-//                CategoryCell cell = new CategoryCell();
-//                CategoryStatisticsPopup tooltip = categoryStatisticsToolip.get();
-//                cell.setTooltip(tooltip);
-//                tooltip.setCell(cell);//no other safe way to pass information to tooltip
                 return new CategoryCell();
             }
         });
