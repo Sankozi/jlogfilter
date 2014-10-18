@@ -1,9 +1,10 @@
 package org.sankozi.jlogfilter.gui;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import javafx.beans.property.*;
@@ -13,6 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import org.sankozi.jlogfilter.Level;
+import org.sankozi.jlogfilter.LogProducer;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +27,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  */
 public class ConfigurationStore {
-    private final static GsonBuilder GSON_BUILDER = new GsonBuilder().setPrettyPrinting();
+    private final static ObjectMapper JSON_MAPPER = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT);
+
+    static {
+        JSON_MAPPER.setVisibilityChecker(JSON_MAPPER.getSerializationConfig()
+                .getDefaultVisibilityChecker()
+                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
+    }
 
     private volatile Configuration configuration;
 
@@ -38,10 +50,6 @@ public class ConfigurationStore {
     @Inject @Named("configurationPath")
     Path configurationFilePath;
 
-    private static Gson getGson() {
-        return GSON_BUILDER.create();
-    }
-
     public Configuration getConfiguration() {
         if(configuration != null){
             return configuration;
@@ -50,7 +58,7 @@ public class ConfigurationStore {
         try {
             System.out.println("Trying to load configuration from path : '" + configurationFilePath + "' ...");
             if(configurationFilePath.toFile().isFile()){
-                ret = getGson().fromJson(Files.toString(configurationFilePath.toFile(), Charsets.UTF_8), Configuration.class);
+                ret = JSON_MAPPER.readValue(Files.toString(configurationFilePath.toFile(), Charsets.UTF_8), Configuration.class);
                 System.out.println("...configuration loaded successfully.");
             } else {
                 File confFile = configurationFilePath.toFile();
@@ -77,7 +85,7 @@ public class ConfigurationStore {
 
     public void saveConfiguration(Configuration configuration){
         try {
-            Files.write(getGson().toJson(configuration), configurationFilePath.toFile(), Charsets.UTF_8);
+            Files.write(JSON_MAPPER.writeValueAsString(configuration), configurationFilePath.toFile(), Charsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

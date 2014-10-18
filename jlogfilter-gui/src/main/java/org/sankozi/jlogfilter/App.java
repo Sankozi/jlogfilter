@@ -32,9 +32,9 @@ public class App extends com.cathive.fx.guice.GuiceApplication {
         primaryStage.show();
         LogConsumer lc = getInjector().getInstance(LogConsumer.class);
         LogEntryFactory lef =  getInjector().getInstance(LogEntryFactory.class);
-        logProducers.add(new SocketHubAppenderLogProducer("localhost",7777, lef));
+        logProducers.add(new SocketHubAppenderLogProducer("localhost",7777));
         for(LogProducer lp: logProducers){
-            lp.start(lc);
+            lp.start(lef, lc);
         }
     }
 

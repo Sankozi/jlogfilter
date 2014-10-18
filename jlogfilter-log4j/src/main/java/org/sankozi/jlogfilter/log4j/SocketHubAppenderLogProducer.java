@@ -16,29 +16,27 @@ import static com.google.common.base.Preconditions.*;
  * Object that produces LogEntry objects for LogConsumer.
  */
 public final class SocketHubAppenderLogProducer implements LogProducer {
-    private final static Joiner STACKTRACE_JOINER = Joiner.on(" \n").skipNulls();
     private final static String[] EMPTY_STRING_ARR = new String[]{};
 
-    private final String host;
-    private final int port;
+    private String host;
+    private int port;
+    private String name;
 
-    private final String name;
+    private transient LogEntryFactory logEntryFactory;
+    private transient Thread producerThread;
+    private transient volatile LogConsumer consumer;
 
-    private final LogEntryFactory lef;
+    SocketHubAppenderLogProducer(){}
 
-    private Thread producerThread;
-
-    private volatile LogConsumer consumer;
-
-    public SocketHubAppenderLogProducer(String host, int port, LogEntryFactory lef) throws IOException {
+    public SocketHubAppenderLogProducer(String host, int port) throws IOException {
         this.host = host;
         this.port = port;
         this.name = "SocketHubAppenderProducer-" + host + ":" + port;
-        this.lef = lef;
     }
 
-    public void start(LogConsumer consumer){
+    public void start(LogEntryFactory lef, LogConsumer consumer){
         checkState(consumer != null, "this producer has already started");
+        this.logEntryFactory = lef;
         this.consumer = checkNotNull(consumer, "consumer cannot be null");
         this.producerThread = new Thread(new Runnable() {
             @Override
@@ -66,7 +64,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                             level = Level.INFO;
                             message = le.getLevel().toString() + " : " + message;
                         }
-                        LogEntry newEntry = lef.level(level)
+                        LogEntry newEntry = logEntryFactory.level(level)
                            .category(le.getLoggerName())
                            .message(message)
                            .stacktrace(le.getThrowableStrRep() == null ? EMPTY_STRING_ARR : le.getThrowableStrRep())
@@ -74,7 +72,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                         consumer.add(newEntry);
                     }
                 } catch (IOException e) {
-                    consumer.add(lef.level(Level.INFO)
+                    consumer.add(logEntryFactory.level(Level.INFO)
                             .category("jlogfilter.log4j")
                             .message(name + " has encountered io error: " + e.getMessage())
                             .stacktrace(EMPTY_STRING_ARR)
@@ -83,13 +81,13 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                 Thread.sleep(5000);
             }
         } catch (InterruptedException ex){
-            consumer.add(lef.level(Level.WARN)
+            consumer.add(logEntryFactory.level(Level.WARN)
                     .category("jlogfilter.log4j")
-                    .message( name + " has been closed")
+                    .message(name + " has been closed")
                     .stacktrace(EMPTY_STRING_ARR)
                     .create());
         } catch (Exception ex) {
-            consumer.add(lef.level(Level.WARN)
+            consumer.add(logEntryFactory.level(Level.WARN)
                     .category("jlogfilter.log4j")
                     .message(name + " has encountered error: " + ex.getMessage())
                     .stacktrace(EMPTY_STRING_ARR)
@@ -105,7 +103,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
         try {
             producerThread.join(1000);
             if(producerThread.isAlive()){
-                consumer.add(lef.level(Level.INFO)
+                consumer.add(logEntryFactory.level(Level.INFO)
                         .category("jlogfilter.log4j")
                         .message(name + " has not ended in time")
                         .stacktrace(EMPTY_STRING_ARR)
