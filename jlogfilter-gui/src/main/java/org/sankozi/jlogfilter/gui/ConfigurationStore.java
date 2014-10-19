@@ -46,6 +46,7 @@ public class ConfigurationStore {
     MapProperty<String, Level> storedMinimalLevel;
     IntegerProperty logEntriesTableSize;
     Property<String> emphasisedEntryText;
+    ListProperty<LogProducer> logProducers;
 
     @Inject @Named("configurationPath")
     Path configurationFilePath;
@@ -148,6 +149,19 @@ public class ConfigurationStore {
             @Override
             protected void changeConfiguration(Configuration conf, String newValue) {
                 conf.emphasisedEntryText = newValue;
+            }
+        });
+    }
+
+    @Inject
+    public void setLogProducers(ListProperty<LogProducer> logProducers){
+        this.logProducers = logProducers;
+        System.out.println("log producers " + logProducers);
+        logProducers.set(FXCollections.observableArrayList(getConfiguration().logProducers));
+        logProducers.addListener(new ConfigurationChangeListener<ObservableList<LogProducer>>() {
+            @Override
+            protected void changeConfiguration(Configuration conf, ObservableList<LogProducer> newValue) {
+                conf.logProducers = newValue;
             }
         });
     }

@@ -1,5 +1,7 @@
 package org.sankozi.jlogfilter.log4j;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
 import org.apache.log4j.spi.LoggingEvent;
 import org.sankozi.jlogfilter.*;
@@ -20,15 +22,15 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
 
     private String host;
     private int port;
-    private String name;
+    private transient String name;
 
-    private transient LogEntryFactory logEntryFactory;
+    private transient volatile LogEntryFactory logEntryFactory;
     private transient Thread producerThread;
     private transient volatile LogConsumer consumer;
 
-    SocketHubAppenderLogProducer(){}
-
-    public SocketHubAppenderLogProducer(String host, int port) throws IOException {
+    @JsonCreator
+    public SocketHubAppenderLogProducer(@JsonProperty("host") String host,
+                                        @JsonProperty("port") int port) {
         this.host = host;
         this.port = port;
         this.name = "SocketHubAppenderProducer-" + host + ":" + port;

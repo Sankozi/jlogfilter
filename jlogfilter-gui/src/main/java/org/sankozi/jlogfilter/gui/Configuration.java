@@ -1,10 +1,12 @@
 package org.sankozi.jlogfilter.gui;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sankozi.jlogfilter.Level;
 import org.sankozi.jlogfilter.LogProducer;
+import org.sankozi.jlogfilter.log4j.SocketHubAppenderLogProducer;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +22,7 @@ public class Configuration {
     /** category prefix of emphasised stacktrace elements */
     List<String> emphasisedStacktraces = Collections.emptyList();
 
+    List<LogProducer> logProducers = ImmutableList.<LogProducer>of(new SocketHubAppenderLogProducer("localhost", 7777));
 }
 
 enum LogProducerType {
