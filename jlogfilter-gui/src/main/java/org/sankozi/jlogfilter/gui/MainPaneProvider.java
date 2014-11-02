@@ -177,6 +177,12 @@ public class MainPaneProvider implements Provider<Pane> {
 
     private Button clearLowerThanButton(final Level level, char icon){
         Button clearButton = new Button(new String(new char[]{TRASH_O, '<', icon}));
+        clearButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        clearButton.setGraphic(
+                HBoxBuilder.create().children(
+                        new Label(new String(new char[]{TRASH_O, '<'})),
+                        GuiUtils.fillLabeledForLevel(new Label(), level)
+                ).build());
         clearButton.getStyleClass().add("fontAwesome-button");
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
