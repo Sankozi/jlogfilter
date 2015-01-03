@@ -25,20 +25,6 @@ public class Configuration {
     List<LogProducer> logProducers = ImmutableList.<LogProducer>of(new SocketHubAppenderLogProducer("localhost", 7777));
 }
 
-enum LogProducerType {
-    LOG4J_SOCKET_HUB("org.sankozi.jlogfilter.log4j.SocketHubAppenderLogProducer");
-
-    private final String clazz;
-
-    LogProducerType(String clazz) {
-        this.clazz = clazz;
-    }
-
-    public String getClazz() {
-        return clazz;
-    }
-}
-
 enum DetailPaneLocation {
     NONE,
     LEFT,

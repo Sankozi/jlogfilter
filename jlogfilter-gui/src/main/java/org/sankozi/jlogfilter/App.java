@@ -15,6 +15,7 @@ import org.sankozi.jlogfilter.gui.ConfigurationStore;
 import org.sankozi.jlogfilter.gui.GuiModule;
 import org.sankozi.jlogfilter.log4j.SocketHubAppenderLogProducer;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -22,10 +23,16 @@ import java.util.List;
  */
 public class App extends com.cathive.fx.guice.GuiceApplication {
 
-    List<LogProducer> logProducers;
-
     public static void main(String[] args){
         launch(args);
+    }
+
+    private Services services;
+
+    public static final class Services {
+        @Inject ListProperty<LogProducer> logProducers;
+        @Inject LogConsumer logConsumer;
+        @Inject LogEntryFactory logEntryFactory;
     }
 
     @Override
@@ -34,18 +41,15 @@ public class App extends com.cathive.fx.guice.GuiceApplication {
         primaryStage.setScene(new Scene(getInjector().getInstance(Key.get(Pane.class, Names.named("main"))), 700, 550));
         primaryStage.setTitle("jlogfilter");
         primaryStage.show();
-        LogConsumer lc = getInjector().getInstance(LogConsumer.class);
-        LogEntryFactory lef =  getInjector().getInstance(LogEntryFactory.class);
-        logProducers = getInjector().getInstance(Key.get(new TypeLiteral<ListProperty<LogProducer>>(){}));
-//        logProducers.add(new SocketHubAppenderLogProducer("localhost",7777));
-        for(LogProducer lp: logProducers){
-            lp.start(lef, lc);
+        services = getInjector().getInstance(Services.class);
+        for(LogProducer lp: services.logProducers){
+            lp.start(services.logEntryFactory, services.logConsumer);
         }
     }
 
     @Override
     public void stop() throws Exception {
-        for(LogProducer lp: logProducers){
+        for(LogProducer lp: services.logProducers){
             lp.close();
         }
         super.stop();
