@@ -1,6 +1,8 @@
 package org.sankozi.jlogfilter.gui;
 
+import javafx.scene.Node;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
 import org.sankozi.jlogfilter.Level;
 
@@ -31,5 +33,12 @@ class GuiUtils {
                 labeled.setTextFill(Color.DARKRED);
         }
         return labeled;
+    }
+
+    static Tab tab(String label, Node node){
+        Tab ret = new Tab(label);
+        ret.contentProperty().setValue(node);
+        ret.setClosable(false);
+        return ret;
     }
 }

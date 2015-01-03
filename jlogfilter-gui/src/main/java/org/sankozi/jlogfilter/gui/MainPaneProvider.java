@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import static org.sankozi.jlogfilter.gui.FontAwesomeIcons.*;
+import static org.sankozi.jlogfilter.gui.GuiUtils.tab;
 
 /**
  *
@@ -101,18 +102,23 @@ public class MainPaneProvider implements Provider<Pane> {
         ToggleButton downDetailButton = getToggleButton(configuration, ARROW_CIRCLE_DOWN, splitPane, detailGroup, DetailPaneLocation.BOTTOM);
         ToggleButton rightDetailButton = getToggleButton(configuration, ARROW_CIRCLE_RIGHT, splitPane, detailGroup, DetailPaneLocation.RIGHT);
 
-        final VBox hiddenConfigPane = new VBox();
-        hiddenConfigPane.setPadding(new Insets(5));
-        hiddenConfigPane.setSpacing(5);
-        hiddenConfigPane.getChildren().addAll(
-                HBoxBuilder.create()
-                        .children(detailLabel, noDetailButton, leftDetailButton, downDetailButton, rightDetailButton)
-                        .build(),
-                HBoxBuilder.create().alignment(Pos.BASELINE_LEFT).children(
-                        new Label("Max rows in table:"),
-                        NumberField.bidirectionalBinding(logEntriesTableSize)
-                ).build(),
-                categoryTree);
+        final Node hiddenConfigPane = TabPaneBuilder.create().tabs(
+                tab("GUI", VBoxBuilder.create()
+                                .padding(new Insets(5))
+                                .spacing(5)
+                                .children(
+                                        HBoxBuilder.create()
+                                                .children(detailLabel, noDetailButton, leftDetailButton, downDetailButton, rightDetailButton)
+                                                .build(),
+                                        HBoxBuilder.create().alignment(Pos.BASELINE_LEFT).children(
+                                                new Label("Max rows in table:"),
+                                                NumberField.bidirectionalBinding(logEntriesTableSize)
+                                        )
+                                        .build()
+                                ).build()
+                ),
+                tab("Category filters", categoryTree)
+        ).build();
         hiddenConfigPane.setVisible(false);
         hiddenConfigPane.setManaged(false);
 
@@ -194,7 +200,7 @@ public class MainPaneProvider implements Provider<Pane> {
         return clearButton;
     }
 
-    private ToggleButton expandButton(final VBox hiddenConfigPane) {
+    private ToggleButton expandButton(final Node hiddenConfigPane) {
         final ToggleButton expandButton = new ToggleButton(Character.toString(PLUS_SQUARE));
         expandButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
