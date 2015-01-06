@@ -115,4 +115,12 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
             throw new RuntimeException(ex);
         }
     }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
 }

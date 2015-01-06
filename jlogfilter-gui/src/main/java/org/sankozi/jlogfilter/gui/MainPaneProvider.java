@@ -68,6 +68,9 @@ public class MainPaneProvider implements Provider<Pane> {
     @Inject @Named("categoryTree")
     Node categoryTree;
 
+    @Inject
+    LogProducerConfigurationPane logProducerConfigurationPane;
+
     @Override
     public Pane get() {
         BorderPane ret = new BorderPane();
@@ -117,14 +120,13 @@ public class MainPaneProvider implements Provider<Pane> {
                                         .build()
                                 ).build()
                 ),
-                tab("Category filters", categoryTree)
+                tab("Category filters", categoryTree),
+                tab("Logs", logProducerConfigurationPane)
         ).build();
         hiddenConfigPane.setVisible(false);
         hiddenConfigPane.setManaged(false);
 
-        configPane.getChildren().addAll(topButtonPane,
-                    hiddenConfigPane
-                );
+        configPane.getChildren().addAll(topButtonPane, hiddenConfigPane);
 
         topButtonPane.getChildren().addAll(expandButton(hiddenConfigPane), clearButton(),
                 clearLowerThanButton(Level.ERROR, FontAwesomeIcons.ERROR),
@@ -138,6 +140,8 @@ public class MainPaneProvider implements Provider<Pane> {
 
         ret.setCenter(splitPane);
         ret.setTop(configPane);
+
+        logProducerConfigurationPane.initialize();
 
         return ret;
     }
