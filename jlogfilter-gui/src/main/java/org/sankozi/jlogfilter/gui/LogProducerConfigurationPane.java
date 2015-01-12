@@ -5,18 +5,22 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFieldBuilder;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.HBoxBuilder;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.xml.Log4jEntityResolver;
 import org.sankozi.jlogfilter.LogProducer;
 import org.sankozi.jlogfilter.log4j.SocketHubAppenderLogProducer;
-import sun.rmi.runtime.Log;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public class LogProducerConfigurationPane extends VBox {
 
@@ -24,6 +28,8 @@ public class LogProducerConfigurationPane extends VBox {
     ListProperty<LogProducer> logProducers;
 
     public void initialize(){
+        setSpacing(5);
+        setPadding(new Insets(5));
         logProducers.addListener(new ChangeListener<ObservableList<LogProducer>>() {
             @Override
             public void changed(ObservableValue<? extends ObservableList<LogProducer>> value,
@@ -36,6 +42,9 @@ public class LogProducerConfigurationPane extends VBox {
 
     public void onListChange(){
         int i = 0;
+        if(!getChildren().isEmpty()){
+            getChildren().remove(getChildren().size() - 1);
+        }
         for (LogProducer logProducer : logProducers) {
             if(i < getChildren().size()){
                 Node node = getChildren().get(i);
@@ -47,6 +56,35 @@ public class LogProducerConfigurationPane extends VBox {
             }
             ++i;
         }
+        getChildren().add(new LogProducerCreateNode());
+    }
+}
+
+class LogProducerCreateNode extends HBox {
+    HBox customParameters = HBoxBuilder.create().alignment(Pos.BASELINE_LEFT).spacing(4).build();
+
+    public LogProducerCreateNode() {
+        setAlignment(Pos.BASELINE_LEFT);
+        setSpacing(4);
+
+        getChildren().add(new Label("Add new source. Type:"));
+
+        ComboBox<String> sourceType = new ComboBox<>();
+        sourceType.getItems().addAll("Log4j SocketHubAppender");
+        sourceType.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> val, String before, String after) {
+                customParameters.getChildren().clear();
+                switch(after){
+                    case "Log4j SocketHubAppender":
+                        customParameters.getChildren().addAll(new Label("host"), new TextField("localhost"),
+                                new Label("port"), TextFieldBuilder.create().text("7777").prefWidth(55).build());
+                        break;
+                }
+            }
+        });
+        getChildren().add(sourceType);
+        getChildren().add(customParameters);
     }
 }
 
