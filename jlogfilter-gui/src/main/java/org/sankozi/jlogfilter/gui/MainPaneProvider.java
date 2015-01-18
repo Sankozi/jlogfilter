@@ -28,12 +28,13 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import static org.sankozi.jlogfilter.gui.FontAwesomeIcons.*;
-import static org.sankozi.jlogfilter.gui.GuiUtils.tab;
+import static org.sankozi.jlogfilter.gui.GuiUtils.*;
 
 /**
  *
  */
 public class MainPaneProvider implements Provider<Pane> {
+
 
     @Inject
     LogTable logEntryTable;
@@ -174,7 +175,7 @@ public class MainPaneProvider implements Provider<Pane> {
 
     private Button clearButton() {
         Button clearButton = new Button(Character.toString(TRASH_O));
-        clearButton.getStyleClass().add("fontAwesome-button");
+        clearButton.getStyleClass().add(FONT_AWESOME_BUTTON_STYLE);
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -193,7 +194,7 @@ public class MainPaneProvider implements Provider<Pane> {
                         new Label(new String(new char[]{TRASH_O, '<'})),
                         GuiUtils.fillLabeledForLevel(new Label(), level)
                 ).build());
-        clearButton.getStyleClass().add("fontAwesome-button");
+        clearButton.getStyleClass().add(FONT_AWESOME_BUTTON_STYLE);
         clearButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
@@ -215,7 +216,7 @@ public class MainPaneProvider implements Provider<Pane> {
                 expandButton.setText(Character.toString(newVisible ? MINUS_SQUARE : PLUS_SQUARE));
             }
         });
-        expandButton.getStyleClass().add("fontAwesome-button");
+        expandButton.getStyleClass().add(FONT_AWESOME_BUTTON_STYLE);
         return expandButton;
     }
 

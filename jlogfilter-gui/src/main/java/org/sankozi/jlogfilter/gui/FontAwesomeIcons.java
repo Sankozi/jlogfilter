@@ -10,6 +10,8 @@ public final class FontAwesomeIcons {
     public final static char CIRCLE = '\uf111';
     public final static char TRASH_O = '\uf014';
 
+    public final static char PLUS='\uf067';
+
     public final static char PLUS_SQUARE = '\uf0fe';
     public final static char MINUS_SQUARE = '\uf146';
 

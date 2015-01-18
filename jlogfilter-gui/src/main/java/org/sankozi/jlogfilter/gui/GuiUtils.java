@@ -10,6 +10,8 @@ import org.sankozi.jlogfilter.Level;
  *
  */
 class GuiUtils {
+    public static final String FONT_AWESOME_BUTTON_STYLE = "fontAwesome-button";
+
     static <T extends Labeled> T fillLabeledForLevel(T labeled, Level level) {
         switch (level){
             case DEBUG:
