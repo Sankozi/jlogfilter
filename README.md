@@ -11,7 +11,7 @@ or Java 8
 Configuration - log4j
 ---------------------
 
-Jlogfilter supports log4j through `SocketHubAppender`. When started it tries to connect to it on localhost:7777. Below are example configurations. 
+Jlogfilter supports log4j through `SocketHubAppender`. When started it tries to connect to it on localhost:7777 (it can be changed through interface). Below are example configurations. 
 
 **log4j.properties**
 ```
