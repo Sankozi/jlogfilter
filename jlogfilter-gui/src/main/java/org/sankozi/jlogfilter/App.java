@@ -6,6 +6,7 @@ import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import javafx.beans.property.ListProperty;
+import javafx.collections.ListChangeListener;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -32,7 +33,6 @@ public class App extends com.cathive.fx.guice.GuiceApplication {
     public static final class Services {
         @Inject ListProperty<LogProducer> logProducers;
         @Inject LogConsumer logConsumer;
-        @Inject LogEntryFactory logEntryFactory;
     }
 
     @Override
@@ -42,9 +42,31 @@ public class App extends com.cathive.fx.guice.GuiceApplication {
         primaryStage.setTitle("jlogfilter");
         primaryStage.show();
         services = getInjector().getInstance(Services.class);
+
         for(LogProducer lp: services.logProducers){
-            lp.start(services.logEntryFactory, services.logConsumer);
+            lp.start(getInjector().getInstance(LogEntryFactory.class), services.logConsumer);
         }
+        services.logProducers.addListener(new ListChangeListener<LogProducer>() {
+            @Override
+            public void onChanged(Change<? extends LogProducer> change) {
+                while(change.next()){
+                    for (LogProducer logProducer : change.getAddedSubList()) {
+                        logProducer.start(getInjector().getInstance(LogEntryFactory.class), services.logConsumer);
+                    }
+                    for (LogProducer logProducer : change.getRemoved()) {
+                        try {
+                            logProducer.close();
+                        } catch (Exception ex){
+                            getInjector().getInstance(LogEntryFactory.class)
+                                         .category("jlogfilter")
+                                         .level(Level.WARN).message("Error while closing log source " + ex.getMessage())
+                                         .stacktrace(ex.getStackTrace())
+                                         .create();
+                        }
+                    }
+                }
+            }
+        });
     }
 
     @Override

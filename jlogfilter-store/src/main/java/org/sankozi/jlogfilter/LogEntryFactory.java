@@ -1,5 +1,8 @@
 package org.sankozi.jlogfilter;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.FluentIterable;
 import org.sankozi.jlogfilter.util.StringPool;
 
 import javax.inject.Inject;
@@ -49,6 +52,11 @@ public final class LogEntryFactory {
 
     public LogEntryFactory stacktrace(String[] stacktrace){
         this.stacktrace = stacktrace;
+        return this;
+    }
+
+    public LogEntryFactory stacktrace(StackTraceElement[] stackTrace) {
+        this.stacktrace = FluentIterable.of(stackTrace).transform(Functions.toStringFunction()).toArray(String.class);
         return this;
     }
 }

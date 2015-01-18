@@ -43,20 +43,11 @@ public class LogProducerConfigurationPane extends VBox {
     }
 
     public void onListChange(){
-        int i = 0;
         if(!getChildren().isEmpty()){
-            getChildren().remove(getChildren().size() - 1);
+            getChildren().clear();
         }
         for (LogProducer logProducer : logProducers) {
-            if(i < getChildren().size()){
-                Node node = getChildren().get(i);
-                if(!((LogProducerEditNode) node).logProducer.equals(logProducer)){
-                    getChildren().set(i, LogProducerEditNode.create(logProducer));
-                }
-            } else {
-                getChildren().add(LogProducerEditNode.create(logProducer));
-            }
-            ++i;
+            getChildren().add(LogProducerEditNode.create(logProducer, logProducers));
         }
         getChildren().add(new LogProducerCreateNode(logProducers));
     }
@@ -98,9 +89,18 @@ class LogProducerCreateNode extends HBox {
                 .onAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
+                        SocketHubAppenderLogProducer logProducer;
                         switch (sourceType.getValue()){
                             case LOG4J_OPTION:
-                                logProducers.add(new SocketHubAppenderLogProducer(host.getText(), Integer.valueOf(port.getText())));
+                                logProducer = new SocketHubAppenderLogProducer(host.getText(), Integer.valueOf(port.getText()));
+                                break;
+                            default:
+                                throw new RuntimeException("Unsupported type " + LOG4J_OPTION);
+                        }
+                        if(logProducers.contains(logProducer)){
+                            //TODO handle duplicates
+                        } else {
+                            logProducers.add(logProducer);
                         }
                     }
                 })
@@ -110,16 +110,30 @@ class LogProducerCreateNode extends HBox {
 
 class LogProducerEditNode extends HBox {
     final LogProducer logProducer;
+    final ListProperty<LogProducer> logProducers;
 
-    public LogProducerEditNode(LogProducer logProducer) {
+    public LogProducerEditNode(LogProducer logProducer, ListProperty<LogProducer> logProducers) {
         this.logProducer = logProducer;
+        this.logProducers = logProducers;
+        this.setAlignment(Pos.BASELINE_LEFT);
+        this.setSpacing(5);
     }
 
-    static LogProducerEditNode create(LogProducer lp){
-        LogProducerEditNode ret = new LogProducerEditNode(lp);
+    static LogProducerEditNode create(final LogProducer lp, final ListProperty<LogProducer> logProducers){
+        LogProducerEditNode ret = new LogProducerEditNode(lp, logProducers);
         if(lp instanceof SocketHubAppenderLogProducer){
             SocketHubAppenderLogProducer log4jLp = ((SocketHubAppenderLogProducer) lp);
-            ret.getChildren().addAll(new Label("Connecting to log4j SocketHubAppender " + log4jLp.getHost() + ":" + log4jLp.getPort()));
+            ret.getChildren().addAll(
+                    new Label("Connecting to log4j SocketHubAppender " + log4jLp.getHost() + ":" + log4jLp.getPort()),
+                    ButtonBuilder.create().styleClass(FONT_AWESOME_BUTTON_STYLE)
+                            .text(Character.toString(FontAwesomeIcons.TRASH_O))
+                            .onAction(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent actionEvent) {
+                                    logProducers.remove(lp);
+                                }
+                            })
+                            .build());
         }
         return ret;
     }

@@ -31,7 +31,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
     @JsonCreator
     public SocketHubAppenderLogProducer(@JsonProperty("host") String host,
                                         @JsonProperty("port") int port) {
-        this.host = host;
+        this.host = checkNotNull(host);
         this.port = port;
         this.name = "SocketHubAppenderProducer-" + host + ":" + port;
     }
@@ -83,7 +83,7 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
                 Thread.sleep(5000);
             }
         } catch (InterruptedException ex){
-            consumer.add(logEntryFactory.level(Level.WARN)
+            consumer.add(logEntryFactory.level(Level.INFO)
                     .category("jlogfilter.log4j")
                     .message(name + " has been closed")
                     .stacktrace(EMPTY_STRING_ARR)
@@ -122,5 +122,25 @@ public final class SocketHubAppenderLogProducer implements LogProducer {
 
     public int getPort() {
         return port;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SocketHubAppenderLogProducer that = (SocketHubAppenderLogProducer) o;
+
+        if (port != that.port) return false;
+        if (!host.equals(that.host)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = host.hashCode();
+        result = 31 * result + port;
+        return result;
     }
 }
